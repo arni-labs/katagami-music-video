@@ -14,7 +14,7 @@ Forced alignment works the other way round: you give it the words, and it finds 
 
 ```sh
 mkdir -p song align
-pip install demucs
+. .venv/bin/activate                 # the venv from the setup in SKILL.md (demucs is installed there)
 demucs --two-stems vocals -n htdemucs_ft song/song.wav
 cp separated/htdemucs_ft/song/vocals.wav song/vocals.wav   # use the path demucs prints
 ```
@@ -41,7 +41,7 @@ print(f'stem is {-lag / 16:.1f} ms late' if lag else 'offset 0.0 ms')
 The aligner gets one lyric line per text line, in song order: `sung` where present and `text` otherwise, with the parentheses removed and the words kept. Reason: the aligner treats a parenthesised span as one non-speech token. Write the text for the whole song into `align/text-song.txt`:
 
 ```sh
-node -e 'for (const l of require("./song/lyrics.json")) console.log((l.sung ?? l.text).replace(/[()]/g, ""))' > align/text-song.txt
+node -e 'for (const l of require("./song/lyrics.json")) console.log((l.sung ?? l.text).replace(/[()]/g, " "))' > align/text-song.txt
 ```
 
 Send 16 kHz mono. Reason: uploads are much faster, and the aligner needs no more.
@@ -55,7 +55,7 @@ A whole song in one request is fine when the vocal is clean and the text matches
 1. Cut the stem at clear pauses. Where a cut must fall near singing, extend the clip over the neighbouring line and add that line to the text as a context line (its id starts with `~`). The script aligns it and drops it.
 2. Write each section's text from its ids, context lines included:
    ```sh
-   node -e 'const L = Object.fromEntries(require("./song/lyrics.json").map(l => [l.id, l])); for (const id of process.argv.slice(1)) { const l = L[id.replace(/^~/, "")]; console.log((l.sung ?? l.text).replace(/[()]/g, "")); }' '~i2' v1_1 v1_2 '~pc1_1' > align/text-verse1.txt
+   node -e 'const L = Object.fromEntries(require("./song/lyrics.json").map(l => [l.id, l])); for (const id of process.argv.slice(1)) { const l = L[id.replace(/^~/, "")]; console.log((l.sung ?? l.text).replace(/[()]/g, " ")); }' '~i2' v1_1 v1_2 '~pc1_1' > align/text-verse1.txt
    ```
 3. Either send one request per section, or put the clips back to back with 2 s of silence between them and send one request for all. Reason: one request gives one result file to keep.
    ```sh
@@ -115,7 +115,7 @@ It prints one row per line: id, start, length, mean and max loss, then any flags
 
 - Read the table. Look hard at every flagged line.
 - For a doubtful word: re-align that line alone on a tight clip (1 s either side), compare it with onsets in the stem (spectral flux peaks), or listen.
-- Keep corrections in `song/timing-fixes.json`, in song seconds, by sung word index (from 0), with a reason each. Reason: the script applies them on every run, so a re-run keeps them.
+- Keep corrections in `song/timing-fixes.json`, in song seconds, by sung word index (from 0), with a reason each. The script reads that file on every run when it exists (`--fixes` names another). Reason: a re-run keeps the corrections.
   ```json
   { "v1_4": { "why": "the aligner squeezed 'Christie's' into 'canvas'", "words": { "5": [41.12, 41.48] } } }
   ```
@@ -127,7 +127,7 @@ It prints one row per line: id, start, length, mean and max loss, then any flags
 Cuts and look switches land on beats. Downbeats (the one of each bar) carry the bigger moves. `npx hyperframes beats` writes beats only, with no downbeats, so use librosa:
 
 ```python
-# beats.py: song/song.wav -> song/beats.json (pip install librosa numpy)
+# beats.py: song/song.wav -> song/beats.json (run it in the venv, which has librosa and numpy)
 import json, numpy as np, librosa
 y, sr = librosa.load('song/song.wav', sr=22050, mono=True)
 tempo, beats = librosa.beat.beat_track(y=y, sr=sr, units='time')

@@ -60,7 +60,7 @@ node "$SKILL_DIR/scripts/edge-check.mjs" out/check-s07 --margin 0     # the font
 - [ ] The grep gate prints nothing:
 
 ```sh
-grep -nE '<img|data:image|url\(|Math\.random|Date\.now|new Date|performance\.now|setTimeout|setInterval|tl\.call|repeat: ?-1|@keyframes|visibility: ?visible' compositions/*/s*.html
+grep -nE "<img|data:image|url\\(['\"]?[^#'\")]|Math\\.random|Date\\.now|new Date|performance\\.now|setTimeout|setInterval|tl\\.call|repeat: ?-1|@keyframes|visibility: ?visible" compositions/*/s*.html
 ```
 
 - [ ] Every hex colour outside the `#root` token block is justified (each one will not restyle).

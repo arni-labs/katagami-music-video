@@ -42,18 +42,18 @@ Show the user what you pick: the thumbnail and the katagami.ai `url` of each ent
 
 Every scene declares its look as CSS custom properties on its root, and every rule reads them. This is what lets the film be restyled later, in a beat-looks cut or on the live page.
 
-Fifteen tokens. Take each from the language's `get_design_tokens` output (CSS format); the first name that exists wins. Entries differ: one names a radius `--radius-base`, another has no `--color-accent-2`, and a dark-ground language can have light cards.
+Fifteen tokens. Take each from the language's `get_design_tokens` output (CSS format); the first name that exists wins. Entries differ: one calls the ground `--color-background`, one names a radius `--radius-base`, another has no `--color-accent-2`, and a dark-ground language can have light cards.
 
 | Film token | Meaning | From `get_design_tokens`, first match wins |
 | --- | --- | --- |
-| `--k-paper` | the ground | `--color-bg` |
-| `--k-surface` | cards and panels | `--color-surface-solid`, `--color-surface` |
-| `--k-ink` | text and lines on paper | `--color-text`, `--color-ink` |
-| `--k-on-surface` | text on a card or panel | `--color-on-surface`, `--color-ink`, `--color-text`, `--color-bg` |
+| `--k-paper` | the ground | `--color-background`, `--color-bg`, else `#FFFFFF` |
+| `--k-surface` | cards and panels | `--color-surface-solid`, `--color-surface`, else `--k-paper` |
+| `--k-ink` | text and lines on paper | `--color-text`, `--color-ink`, else black or white, whichever passes on paper |
+| `--k-on-surface` | text on a card or panel | `--color-on-surface`, `--color-ink`, `--color-text`, `--color-background`, `--color-bg` |
 | `--k-muted` | secondary text on paper | `--color-muted` if it passes on paper, else `--k-ink` |
-| `--k-line` | rules and keylines | `--color-border` |
-| `--k-accent` | the highlighter (key word, marker) | `--color-accent` |
-| `--k-accent-2`, `--k-accent-3` | sparing second and third accents | `--color-accent-2` and `-3`, else colours from the palette `compose_kit` paired with it, else `--k-accent` |
+| `--k-line` | rules and keylines | `--color-border`, else `--k-muted` |
+| `--k-accent` | the highlighter (key word, marker) | `--color-accent`, `--color-primary`, else the first colour of the palette `compose_kit` paired with it |
+| `--k-accent-2`, `--k-accent-3` | sparing second and third accents | `--color-accent-2` and `-3` (for accent-2 also `--color-secondary`), else colours from the paired palette, else `--k-accent` |
 | `--k-on-accent` | text on an accent block | `--color-on-accent`, else `--k-ink` or `--k-paper`, whichever passes on the accent |
 | `--k-font-display`, `--k-font-body`, `--k-font-mono` | the three faces | `--font-heading`, `--font-body`, `--font-mono`, each with a generic fallback (`'Barlow Condensed', sans-serif`) |
 | `--k-radius` | corners | `--radius-md`, `--radius-base`, else `0px` |
@@ -283,7 +283,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
         const s = document.createElement('span'); s.textContent = w.w;
         if (i === L.words.length - 1) s.className = 'key';                                    // the punchline word
         cap.appendChild(s);
-        tl.fromTo(s, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power3.out' }, Math.max(0, w.t - 0.03));
+        tl.fromTo(s, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power3.out' }, w.t);          // never before it is sung
       });
       window.__timelines[id] = tl;
     })();

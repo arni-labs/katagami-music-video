@@ -37,7 +37,14 @@ scenes.forEach((s, i) => {
 ```
 
 2. Build each window as its own small HyperFrames page: only the scenes that overlap `[from, to]`, times shifted so the window starts at 0, no audio. The starter `build.mjs` does this: `node build.mjs --frame wide --mute --window 9.09,19.11 --out site/film/live-wide-01`. Each build is a folder (`index.html`, `timing.js`, `compositions/`, `art/`, `assets/`). To share files between windows, save its `index.html` as `film/live-wide-01.html` and its `timing.js` as `film/timing-live-wide-01.js` (update the script tag), and keep one copy of `compositions/`, `art/` and `assets/` in `film/`.
-3. Serve every window from one folder, sharing `compositions/`, `art/` and `assets/`. Copy the HyperFrames runtime (`hyperframe.runtime.iife.js` from the `hyperframes` package's `dist/`) and GSAP into `film/vendor/`, and load those. Reason: the page then keeps playing the film you tested.
+3. Serve every window from one folder, sharing `compositions/`, `art/` and `assets/`. Copy the HyperFrames runtime and GSAP into `film/vendor/`, then make each window page load the runtime first in its `<head>` and GSAP from `vendor/`. Reason: a page outside the HyperFrames CLI gets no runtime unless it loads one, and pinned copies keep playing the film you tested.
+
+   ```sh
+   mkdir -p site/film/vendor
+   cp node_modules/hyperframes/dist/hyperframe.runtime.iife.js site/film/vendor/
+   curl -fsSL https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js -o site/film/vendor/gsap.min.js
+   perl -pi -e 's#<head>#<head>\n<script src="vendor/hyperframe.runtime.iife.js"></script>#; s#https://cdn\.jsdelivr\.net/npm/gsap\@3\.14\.2/dist/gsap\.min\.js#vendor/gsap.min.js#' site/film/live-*.html
+   ```
 4. Write the manifest:
 
 ```json

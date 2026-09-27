@@ -28,16 +28,20 @@ This skill owns the music video workflow. HyperFrames' own skills (`npx hyperfra
 
 ## Set up the project
 
-`$SKILL_DIR` below means this skill's folder (for Claude Code: `~/.claude/skills/katagami-music-video`). Every command runs from the video project's root.
+`$SKILL_DIR` below means this skill's folder. Set it in every new shell, or write the literal path. Every command runs from the video project's root.
 
 ```sh
+export SKILL_DIR="$HOME/.claude/skills/katagami-music-video"
 mkdir -p my-video/song my-video/align && cd my-video && npm init -y
 npm i -D hyperframes playwright       # pins HyperFrames: npx hyperframes now runs this version
 npx playwright install chromium
+python3 -m venv .venv && . .venv/bin/activate && pip install demucs librosa numpy pillow
 cp "$SKILL_DIR/scripts/build.mjs" .
 ```
 
-Reason for the pin: the render must match the preview you checked, and the edge check loads the same runtime. You do not need `hyperframes init`: `build.mjs` writes the HyperFrames projects.
+- Reason for the pin: the render must match the preview you checked, and the edge check loads the same runtime.
+- Activate the venv (`. .venv/bin/activate`) in every new shell before a Python step. Reason: many systems refuse `pip install` into the system Python.
+- You do not need `hyperframes init`: `build.mjs` writes the HyperFrames projects.
 
 ## What you need
 
@@ -47,7 +51,7 @@ Reason for the pin: the render must match the preview you checked, and the edge 
 | Looks | the Katagami MCP |
 | Reference images | any image model that accepts reference images |
 | Tracing images to vectors | potrace, Python 3 with Pillow and NumPy |
-| Word timing | Demucs (vocal stem) and a forced aligner, for example ElevenLabs Forced Alignment (directly or through fal) |
+| Word timing | Demucs (vocal stem) and a forced aligner, for example ElevenLabs Forced Alignment, directly or through fal (needs your own ElevenLabs or fal API key) |
 | Beats | librosa for beats and downbeats (`npx hyperframes beats` gives beats only) |
 | A new song | a music model such as Suno (only when the user has no song yet) |
 | Bottom-edge and font check | Playwright, installed above |

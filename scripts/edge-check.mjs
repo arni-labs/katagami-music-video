@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Bottom-edge and font check for vertical (9:16) HyperFrames builds. Needs Node 22+ and Playwright
+// Bottom-edge and font check for HyperFrames builds (made for 9:16; it runs at the build's canvas size). Needs Node 22+ and Playwright
 // (npm i -D playwright && npx playwright install chromium).
 //   node edge-check.mjs <built-project-dir> [--margin 48] [--at 1.5,4,7.2] [--samples 6] [--out report.txt] [--hf-version x.y.z]
 // Plays the build (the folder holding index.html) in Chromium at its canvas size and seeks to sample times: --at (film
@@ -84,8 +84,8 @@ const server = http.createServer((req, res) => {
     const ext = path.extname(f);
     if (ext === '.html') {
       let html = buf.toString('utf8').replace(/<audio\b[^>]*>[\s\S]*?<\/audio>|<audio\b[^>]*\/>/g, '');
-      if (rel === 'index.html' && !/hyperframe[.-]runtime/.test(html)) // unless the build already loads the runtime
-        html = html.replace(/<head[^>]*>/, m => m + '\n<script src="/__hf_runtime.js"></script>');
+      if (rel === 'index.html' && /hyperframe[.-]runtime/.test(html)) runtimeFrom = 'the page\'s own'; // the build loads one
+      else if (rel === 'index.html') html = html.replace(/<head[^>]*>/, m => m + '\n<script src="/__hf_runtime.js"></script>');
       buf = Buffer.from(html);
     }
     res.writeHead(200, { 'content-type': TYPES[ext] || 'application/octet-stream' });

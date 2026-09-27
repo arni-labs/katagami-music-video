@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Turn forced-alignment results into song/timing.json and song/labels.txt.
-//   node "$SKILL_DIR/scripts/align-to-timing.mjs" [--sections align/sections.json] [--fixes song/timing-fixes.json] [--duration seconds]
+//   node "$SKILL_DIR/scripts/align-to-timing.mjs" [--sections align/sections.json] [--fixes file] [--duration seconds]
+// Fixes default to song/timing-fixes.json when that file exists.
 // Run it from the video project root. It reads song/lyrics.json and the aligner results that sections.json names
 // (default: align/song.json holding every line, in order). A result is ElevenLabs-shaped: { words: [{ text, start,
 // end, loss }] }, optionally wrapped in { result }. sections.json: [{ "file", "shift", "ids" }]: the lines of that
@@ -18,7 +19,8 @@ const r3 = x => +x.toFixed(3);
 const lyrics = read('song/lyrics.json'), byId = Object.fromEntries(lyrics.map(l => [l.id, l]));
 const lineOf = id => byId[id.replace(/^~/, '')] || die(`${id} is not in song/lyrics.json`);
 const sections = arg('--sections') ? read(arg('--sections')) : [{ file: 'align/song.json', shift: 0, ids: lyrics.map(l => l.id) }];
-const fixes = arg('--fixes') ? read(arg('--fixes')) : {};
+const fixesFile = arg('--fixes') ?? (fs.existsSync('song/timing-fixes.json') ? 'song/timing-fixes.json' : null);
+const fixes = fixesFile ? read(fixesFile) : {};
 let duration = arg('--duration');
 if (duration == null) try {
   duration = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', 'song/song.wav']).toString();

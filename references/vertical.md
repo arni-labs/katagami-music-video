@@ -42,7 +42,7 @@ node "$SKILL_DIR/scripts/edge-check.mjs" out/vert                # the whole fil
 node "$SKILL_DIR/scripts/edge-check.mjs" out/vert --at 12.4,31   # given moments
 ```
 
-- It plays the built film at 1080x1920 and seeks to six moments in every scene.
+- It plays the built film at the build's canvas size (1080x1920 for `out/vert`) and seeks to six moments in every scene.
 - It lists every visible element with text, a border, a fill or a shadow that crosses the bottom edge. It also lists those that end inside the margin (48 px by default).
 - It lists fonts too: a family that visible text asks for first but that has no `@font-face`, and any font file that failed to load. Both render in a fallback face.
 - It exits 1 when it finds something.
@@ -63,7 +63,7 @@ Test every look before you render. The build's `--look <id>` option (see `scenes
 
 ```html
 <style>[data-composition-id],[data-composition-id] *{--k-paper:#0A0A0A!important;--k-ink:#F2F2F2!important;--k-on-surface:#F2F2F2!important;/* all 15 tokens */}</style>
-<script>reinkArt(["#0A0A0A", "#55FF55", "#F2F2F2"]);</script>
+<script>reinkArt(["#0A0A0A", "#1F8F52", "#55FF55"]);</script>
 ```
 
 ```sh

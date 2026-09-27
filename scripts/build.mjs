@@ -66,7 +66,8 @@ ${[...art].map(a => `<script src="art/${a}.js"></script>\n`).join('')}${lookTags
 <div id="root" data-composition-id="main" data-start="0" data-duration="${dur}" data-width="${W}" data-height="${H}">
 ${audio ? `<audio id="song" class="clip" data-timeline-role="music" data-start="0" data-duration="${dur}"${win ? ` data-media-start="${win[0]}"` : ''} data-track-index="0" src="assets/song.wav"></audio>\n` : ''}${placed.map(s => `<div id="${s.id}" data-composition-id="${s.id}" data-composition-src="compositions/${frame}/${s.id}.html" data-start="${s.at}" data-duration="${s.dur}" data-track-index="1" data-width="${W}" data-height="${H}" style="position:absolute;inset:0"></div>`).join('\n')}
 </div>
-<script>window.__timelines["main"] = gsap.timeline({ paused: true });</script>
+<script>window.__timelines = window.__timelines || {};
+window.__timelines["main"] = gsap.timeline({ paused: true });</script>
 </body>
 </html>
 `);
