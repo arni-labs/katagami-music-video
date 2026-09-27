@@ -17,7 +17,7 @@ Output: `song/song.wav` and `song/lyrics.json`.
 
 ## If the user only has an idea: write the lyrics first
 
-Start from the answers to the questions in SKILL.md. An idea also needs three more: the mood, the genre, and what is off-limits.
+Infer the mood, the genre and the audience from the idea. Ask only for what it does not tell you, and what is off-limits if it could matter.
 
 ### Craft
 
@@ -35,12 +35,12 @@ Show the user the full lyrics with section labels and scene notes. Get approval 
 
 The screen and the singer need different spellings.
 
-- `text` is the caption: what a reader expects. "98%", "PRs", "@name", brand names spelled correctly, native script.
+- `text` is the caption: what a reader expects. "5%", "DJ", "@name", brand names spelled correctly, native script.
 - `sung` is what the music model should sing and what the aligner will listen for. Add it only where it differs from `text`.
 
 How to write `sung`:
 
-- Spell out numbers and acronyms: "98%" becomes "ninety-eight percent", "PRs" becomes "pee-arrs", "@name" becomes "at name".
+- Spell out numbers and acronyms: "5%" becomes "five percent", "DJ" becomes "dee-jay", "@name" becomes "at name".
 - Mark stress with capitals where the model stresses a word wrongly: "reCORD" for the verb.
 - Use kana for a Japanese particle the model reads by its spelling: the topic particle は is sung "wa", so write わ.
 - If the model reads a line as a neighbouring language, respell it in a script that forces the right sounds, or in Latin letters.

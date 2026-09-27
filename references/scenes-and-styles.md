@@ -10,8 +10,8 @@ Cut the song into scenes of one lyric line or a couplet, usually 2 to 6 s. The i
 
 ```json
 [
-  { "id": "s01", "lines": ["i1"], "mode": "manga", "idea": "A CAPTCHA grid where every tile is the singer's own face", "art_style": "<slug>", "language": "<slug>" },
-  { "id": "s02", "lines": ["v1_1", "v1_2"], "mode": "manga", "idea": "An old drawing inside a neural net, lit like a museum piece", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
+  { "id": "s01", "lines": ["i1"], "mode": "manga", "idea": "A phone at 5% battery, the only light in a dark room", "art_style": "<slug>", "language": "<slug>" },
+  { "id": "s02", "lines": ["v1_1", "v1_2"], "mode": "manga", "idea": "The same street at dawn, drawn as one manga panel", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
   { "id": "s09", "lines": [], "start": 61.5, "mode": "manga", "idea": "Instrumental break: rain fills the phone screen", "art_style": "<slug>" }
 ]
 ```

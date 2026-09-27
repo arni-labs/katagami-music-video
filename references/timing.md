@@ -14,7 +14,7 @@ Forced alignment works the other way round: you give it the words, and it finds 
 
 ```sh
 mkdir -p song align
-. .venv/bin/activate                 # the venv from the setup in SKILL.md (demucs is installed there)
+. .venv/bin/activate && pip install demucs   # the venv from the setup in SKILL.md; demucs pulls in PyTorch
 demucs --two-stems vocals -n htdemucs_ft song/song.wav
 cp separated/htdemucs_ft/song/vocals.wav song/vocals.wav   # use the path demucs prints
 ```
