@@ -2,10 +2,10 @@
 
 An agent skill that turns any song into a lyric music video: word-timed lyrics, one code-drawn scene per line in Katagami looks, rendered with HyperFrames at 16:9 and native 9:16.
 
-<!-- Video: replace the next line with the github.com/user-attachments/assets/... URL of the uploaded mp4, alone on its line. GitHub renders that URL as a player; it strips <video> tags that point at files in the repo. -->
-[Watch the video](media/clanker-im-fine.mp4)
+https://github.com/user-attachments/assets/11b08858-6a57-4e33-bf58-fd67a676ee9d
 
-Tap the film to restyle it live: https://arnilabs.ai/clanker-im-fine/
+The first 60 seconds. Watch the full video, and tap it to restyle it live: https://arnilabs.ai/clanker-im-fine/
+
 
 ## Install
 
