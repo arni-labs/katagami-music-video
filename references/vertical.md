@@ -62,14 +62,16 @@ A look changes paper, ink, accents and fonts at once. Text that was fine in one 
 Test every look before you render. The build's `--look <id>` option (see `scenes-and-styles.md`, section 6) writes the look's rule into the `<head>` of the built `index.html`, after `art/art.js`, and re-inks the art:
 
 ```html
-<style>[data-composition-id],[data-composition-id] *{--k-paper:#0A0A0A!important;--k-ink:#F2F2F2!important;--k-on-surface:#F2F2F2!important;/* all 19 tokens */}</style>
-<script>reinkArt(["#0A0A0A", "#1F8F52", "#55FF55"]);</script>
+<style>[data-composition-id],[data-composition-id] *{--k-paper:<hex>!important;--k-ink:<hex>!important;--k-on-surface:<hex>!important;/* all 19 tokens */}</style>
+<script>reinkArt(["<hex>", "<hex>", "<hex>"]);</script>
 ```
 
 ```sh
-node build.mjs --frame vert --look dither --only s04,s05 --out out/look-dither
-npx hyperframes check out/look-dither
-npx hyperframes snapshot out/look-dither --at 1.2,3.4,6.1
+for lk in <restyle look ids from looks.json>; do
+  node build.mjs --frame vert --look $lk --only s04,s05 --out out/look-$lk
+  npx hyperframes check out/look-$lk
+  npx hyperframes snapshot out/look-$lk --at 1.2,3.4,6.1
+done
 ```
 
 - The rule must be in the top document and must target every descendant with `!important`. Reason: the same rule inside a scene's `<style>` is scoped to that scene and silently matches nothing, and a scene's own `#root` rule shadows tokens set only on the host.

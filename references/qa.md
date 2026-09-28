@@ -47,7 +47,7 @@ node build.mjs --frame wide --only s07,s08 --out out/check-s07
 npx hyperframes check out/check-s07 --snapshots
 npx hyperframes snapshot out/check-s07 --at 0.1,1.2,2.8,4.5
 node "$SKILL_DIR/scripts/edge-check.mjs" out/check-s07 --margin 0     # the font report; margin 0 skips the tight rule
-for lk in riso dither; do                                             # every restyle look in looks.json
+for lk in <restyle look ids from looks.json>; do                      # every look except original
   node build.mjs --frame wide --only s07 --look $lk --out out/check-s07-$lk && npx hyperframes check out/check-s07-$lk && npx hyperframes snapshot out/check-s07-$lk --at 1.2
 done
 ```

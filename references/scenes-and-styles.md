@@ -10,16 +10,16 @@ Cut the song into scenes of one lyric line or a couplet, usually 2 to 6 s. The i
 
 ```json
 [
-  { "id": "s01", "lines": ["i1"], "mode": "manga", "idea": "A phone at 5% battery, the only light in a dark room", "art_style": "<slug>", "language": "<slug>" },
-  { "id": "s02", "lines": ["v1_1", "v1_2"], "mode": "manga", "idea": "The same street at dawn, drawn as one manga panel", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
-  { "id": "s09", "lines": [], "start": 61.5, "mode": "manga", "idea": "Instrumental break: rain fills the phone screen", "art_style": "<slug>" }
+  { "id": "s01", "lines": ["i1"], "mode": "mode-a", "idea": "A kettle starts to whistle in an empty kitchen before sunrise", "art_style": "<slug>", "language": "<slug>" },
+  { "id": "s02", "lines": ["v1_1", "v1_2"], "mode": "mode-a", "idea": "A cat on the windowsill watches the street wake up", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
+  { "id": "s09", "lines": [], "start": 61.5, "mode": "mode-b", "idea": "Instrumental break: the street lights go out one by one", "art_style": "<slug>" }
 ]
 ```
 
 - One idea per scene: a joke, an image, a turn. Write it in one sentence before you design anything.
-- The lyric is always on screen, and it works best inside the picture: the chat bubble, the sign, the terminal command, the caption box of a manga panel.
+- The lyric is always on screen, and it works best inside the picture: a sign, a letter, a label, a message on a screen, a caption box.
 - Put small details in the picture that reward a second watch (fine print, labels, a background sign).
-- Choose two or three modes for the whole film, for example black-and-white manga for most lines, green terminal for machine lines, loud flat colour for a few punchlines. Every line changes treatment (layout, type, texture, motif), but only inside those modes. Record each mode's look in `looks.json` (section 3).
+- Choose two or three modes for the whole film from this song's idea, for example an illustrated mode for story lines, a diagram mode for ideas and a type-only mode for punchlines, or whatever the idea needs. Every line changes treatment (layout, type, texture, motif), but only inside those modes. Record each mode's look in `looks.json` (section 3).
 - Story sections (a chorus, the bridge) can be full-frame illustrated sequences: three to six shots per scene, cut on words and beats, characters acting the line.
 
 ## 2. Choose looks with the Katagami MCP
@@ -31,7 +31,7 @@ Katagami holds design languages (tokens, rules, type and UI), palette systems an
 | `compose_kit({ query })` | The film's base look: a language, a palette and an art style judged to belong together, with a `brief_url`. |
 | `ask_library({ query, kind })` | A look for one scene or section, from a one-sentence brief ("the chorus: loud, glossy, anime energy"). |
 | `ask_library({ query, reading, changes, refine })` | Adjusting an answer ("quieter, black and white"). Pass back the `reading` and `changes` it returned. |
-| `search_library({ kind, query, tag, medium })` | A named style, tag or medium ("manga", "risograph", `medium: "print"`). `describe_library` lists what exists. |
+| `search_library({ kind, query, tag, medium })` | A named style, tag or medium ("woodcut", "collage", `medium: "print"`). `describe_library` lists what exists. |
 | `get_library_entry({ id_or_slug })` | Everything in one entry. For an art style: `prompt_template`, `slot_recipes`, `negative_prompt`, `reference_image_urls`, do's and don'ts. |
 | `get_design_tokens({ id_or_slug, format: "css" })` | A design language's colours, radii, shadows and fonts as CSS variables, plus `fonts_url`. |
 | `check_page_against_language({ id_or_slug, page })` | After building a scene's UI: pass the scene HTML with its CSS and fix what breaks the language, worst first. |
@@ -79,25 +79,26 @@ contrast('#f8f1e4', '#f5efe2'); // light text on a light card: about 1.0, so on-
 ```json
 { "tokens": ["paper", "surface", "ink", "on-surface", "muted", "line", "accent", "accent-2", "accent-3", "text-2", "text-3", "on-accent", "font-display", "font-body", "font-mono", "lh-display", "lh-body", "radius", "shadow"],
   "modes": {
-    "manga": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "#FFFFFF", "ink": "#120E18", "accent": "#FFF26A", "lh-display": "1.08" }, "inks": ["#FFFFFF", "#B9B4C2", "#120E18"] },
-    "terminal": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "#0A0A0A", "ink": "#55FF55", "accent": "#55FF55" }, "inks": ["#0A0A0A", "#1F8F52", "#55FF55"] }
+    "mode-a": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>", "lh-display": "<number>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] },
+    "mode-b": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] }
   },
   "looks": [
     { "id": "original", "k": null, "inks": null },
-    { "id": "riso", "language": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "#F3EAD8", "ink": "#211A2E", "accent": "#FF2E88", "on-accent": "#211A2E" }, "inks": ["#F3EAD8", "#FFC21F", "#FF2E88", "#211A2E"] },
-    { "id": "dither", "language": "<slug>", "fonts": "<fonts_url>",
-      "k": { "paper": "#0A0A0A", "surface": "#161616", "ink": "#F2F2F2", "on-surface": "#F2F2F2", "muted": "#9AA39A", "line": "#3A3F3A",
-             "accent": "#55FF55", "accent-2": "#55FFFF", "accent-3": "#FF55FF", "text-2": "#55FFFF", "text-3": "#FF55FF", "on-accent": "#0A0A0A",
-             "font-display": "'Jersey 10', monospace", "font-body": "'VT323', monospace", "font-mono": "'VT323', monospace",
-             "lh-display": "1.0", "lh-body": "1.12", "radius": "0px", "shadow": "none" },
-      "inks": ["#0A0A0A", "#1F8F52", "#55FF55"] }
+    { "id": "look-b", "language": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>", "on-accent": "<hex>" }, "inks": ["<hex>", "<hex>", "<hex>", "<hex>"] },
+    { "id": "look-c", "language": "<slug>", "fonts": "<fonts_url>",
+      "k": { "paper": "<dark hex>", "surface": "<hex>", "ink": "<light hex>", "on-surface": "<hex>", "muted": "<hex>", "line": "<hex>",
+             "accent": "<hex>", "accent-2": "<hex>", "accent-3": "<hex>", "text-2": "<hex>", "text-3": "<hex>", "on-accent": "<hex>",
+             "font-display": "'<display face>', sans-serif", "font-body": "'<body face>', sans-serif", "font-mono": "'<mono face>', monospace",
+             "lh-display": "<number>", "lh-body": "<number>", "radius": "<px>", "shadow": "<shadow or none>" },
+      "inks": ["<dark hex>", "<mid hex>", "<light hex>"] }
   ] }
 ```
 
+- The ids and values are placeholders. Name each mode and look after what you chose, and fill the values from its Katagami entries.
 - `modes` has one entry per mode named in `scenes.json`: its language, art style, fonts, all nineteen tokens in `k` (shortened above) and the ink ramp for its art. A scene declares its mode's tokens on its root (section 7). Reason: with several modes there is no single original look, so scene builders need each mode's tokens written down.
 - `original` has `"k": null`: each scene keeps its own mode's tokens.
-- Every restyle look lists all nineteen tokens (`riso` is shortened above).
-- `inks` is the colour ramp the traced art is re-inked with (section 5). Its first colour paints the art's lightest tone and its last colour the darkest. `dither` starts dark, so its art prints inverted, like its type.
+- Every restyle look lists all nineteen tokens (`look-b` is shortened above).
+- `inks` is the colour ramp the traced art is re-inked with (section 5). Its first colour paints the art's lightest tone and its last colour the darkest. `look-c` has a dark paper, so its ramp starts dark and its art prints inverted, like its type.
 
 ### Fonts
 
@@ -116,8 +117,8 @@ fetch_fonts() {  # fetch_fonts <name> <fonts_url> [subsets]: .woff2 files into a
   done
   printf '%s\n' "$css" | sed -E 's#url\(https://fonts\.gstatic\.com/[^)]*/([^/)]+\.woff2)\)#url(assets/fonts/\1)#g' > "assets/fonts/$1.css"
 }
-fetch_fonts film "https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
-fetch_fonts dither "<the dither look's fonts_url>"
+fetch_fonts mode-a "<mode-a's fonts_url>"                               # one call per mode and per restyle look
+fetch_fonts look-c "<look-c's fonts_url>"
 fetch_fonts jp "<a Japanese family's fonts_url>" 'latin|latin-ext'       # CJK faces: only the subsets the film shows
 cat assets/fonts/*.css > assets/fonts.css
 ```
@@ -289,10 +290,11 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
 ```html
 <template>
   <style>
-    #root { --k-paper: #FFFFFF; --k-surface: #FFFFFF; --k-ink: #120E18; --k-on-surface: #120E18; --k-muted: #5B5566; --k-line: #120E18;
-      --k-accent: #FFF26A; --k-accent-2: #120E18; --k-accent-3: #120E18; --k-text-2: #120E18; --k-text-3: #120E18; --k-on-accent: #120E18;
-      --k-font-display: 'Anton', sans-serif; --k-font-body: 'Inter', sans-serif; --k-font-mono: 'Space Mono', monospace;
-      --k-lh-display: 1.08; --k-lh-body: 1.12; --k-radius: 0px; --k-shadow: none;
+    #root { /* all nineteen tokens of this scene's mode, copied from looks.json */
+      --k-paper: <hex>; --k-surface: <hex>; --k-ink: <hex>; --k-on-surface: <hex>; --k-muted: <hex>; --k-line: <hex>;
+      --k-accent: <hex>; --k-accent-2: <hex>; --k-accent-3: <hex>; --k-text-2: <hex>; --k-text-3: <hex>; --k-on-accent: <hex>;
+      --k-font-display: '<display face>', sans-serif; --k-font-body: '<body face>', sans-serif; --k-font-mono: '<mono face>', monospace;
+      --k-lh-display: <number>; --k-lh-body: <number>; --k-radius: <px>; --k-shadow: <shadow or none>;
       position: absolute; inset: 0; overflow: hidden; background: var(--k-paper); color: var(--k-ink); }
     #s07-shot { position: absolute; left: -90px; top: -50px; width: 2100px; height: 1180px; }
     #s07-cap { position: absolute; left: 96px; right: 96px; bottom: 96px; font: 700 76px/var(--k-lh-display) var(--k-font-display); letter-spacing: -0.02em; }
@@ -303,7 +305,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
   <div id="root" class="scene" data-composition-id="s07" data-width="1920" data-height="1080">
     <div id="s07-shot" data-bleed data-layout-allow-overflow></div>
     <div id="s07-cap"></div>
-    <div class="k-credit" data-kind="art style">art style: Keylight, katagami.ai</div>
+    <div class="k-credit" data-kind="art style">art style: <art style name>, katagami.ai</div>
   </div>
   <script>
     (() => {
@@ -311,7 +313,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
       const all = document.querySelectorAll('[data-composition-id="s07"]'), last = all[all.length - 1];
       const root = last.classList.contains('scene') ? last : last.querySelector('.scene');   // the template root, not its host
       const tl = gsap.timeline({ paused: true });
-      placeArt(root.querySelector('#s07-shot'), 'shot-07a', { inks: ['#FFFFFF', '#B9B4C2', '#120E18'] });
+      placeArt(root.querySelector('#s07-shot'), 'shot-07a', { inks: ['<paper hex>', '<mid hex>', '<ink hex>'] });   // the mode's ramp from looks.json
       tl.fromTo('#s07-shot', { scale: 1 }, { scale: 1.06, duration: S.dur, ease: 'none' }, 0);     // every shot moves
       const L = S.lines[0], cap = root.querySelector('#s07-cap');
       cap.lang = L.lang || 'en';

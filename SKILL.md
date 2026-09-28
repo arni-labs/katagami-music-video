@@ -7,7 +7,7 @@ description: Make a lyric music video for a song, or write the song first. Word-
 
 You make a lyric music video from a song or an idea:
 
-- Lyrics timed to the word and always on screen, usually inside the picture (a chat bubble, a sign, a terminal line).
+- Lyrics timed to the word and always on screen, usually inside the picture (a sign, a letter, a caption box).
 - One scene per lyric line or phrase, each in a look from the Katagami library: an art style for the pictures, a design language for type and UI.
 - Every frame drawn in code (HTML, CSS, SVG, canvas) and rendered with HyperFrames. Generated images are only references, traced into vectors.
 - A 16:9 film and a native 9:16 film. Optional: a cut that switches looks on the beat, and a page where viewers tap to restyle the film.
@@ -70,6 +70,7 @@ out/         builds; renders/ films; site/ the optional live page
 1. **The song** ([lyrics.md](references/lyrics.md)). `song/song.wav` and `song/lyrics.json`, with `text` for the screen and `sung` for the singer and the aligner. Done when the user approved the take.
 2. **Timing** ([timing.md](references/timing.md)). Split the vocal stem, force-align the lyrics on it, then run `node "$SKILL_DIR/scripts/align-to-timing.mjs"` and review what it flags. Write `song/beats.json`. Done when five line starts after pauses sit on the voice.
 3. **Scenes and looks** ([scenes-and-styles.md](references/scenes-and-styles.md)).
+   - Take the genre, voices, modes and looks from this song's idea and the Katagami search; the examples in the references are placeholders, not defaults.
    - One line or couplet per scene, with a one-sentence idea.
    - Two or three modes for the whole film. Reason: a new look every line with no system reads as noise.
    - A new video gets its own cast, characters and looks. Never reuse characters, art or scenes from an earlier video unless the user asks for a sequel. Reason: a reused character makes a new video read as a rerun of the last one.

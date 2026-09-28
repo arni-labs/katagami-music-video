@@ -83,7 +83,7 @@ Edit the source, never the outputs. On every run it checks that line ids are uni
 
 Any music model works if it takes lyrics and a style prompt. Suno is one example. Keep the steps tool-neutral:
 
-1. **Style prompt.** Genre, tempo in BPM, mood, instrumentation, and the vocal for each section ("rap verses, airy sung chorus, gang shouts on the hook"). Do not name a living artist. Reason: services often block artist names, and copying a real singer's voice raises rights problems.
+1. **Style prompt.** Genre, tempo in BPM, mood, instrumentation, and which voice sings or speaks each section, all chosen for this song. Pairings range widely, for example "breathy spoken verses, stacked-harmony chorus", "one crooner throughout, a choir on the bridge" or "call and response between two singers"; none of them is a default. Do not name a living artist. Reason: services often block artist names, and copying a real singer's voice raises rights problems.
 2. **Lyrics box.** Section tags (`[Verse 1]`, `[Pre-Chorus]`, `[Chorus]`, `[Bridge]`) and the `sung` spellings, generated from the source file.
 3. **Generate several takes.** Pick for diction (every word clear on a phone speaker), a hook that lands, and a steady tempo.
 4. **Fix single lines** with the tool's replace-section or edit feature. Note the time range and the exact new text.
