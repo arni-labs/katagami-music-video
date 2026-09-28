@@ -2,6 +2,7 @@
 //   node build.mjs [--frame wide|vert] [--only s04,s05] [--window from,to] [--mute] [--look id] [--out dir]
 // Reads song/lyrics.json, song/timing.json, scenes.json, compositions/<frame>/sNN.html, art/, assets/ (and looks.json
 // for --look). Writes out/<frame>/ (or --out): index.html, timing.js and real copies of compositions/<frame>/, art/, assets/.
+// Until song/song.wav exists it builds without audio, and it says so when song/timing.json is provisional.
 // The contract is in references/scenes-and-styles.md, section 6.
 import fs from 'node:fs';
 const argv = process.argv.slice(2), arg = k => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : undefined; };
@@ -44,7 +45,8 @@ for (const a of art) if (!fs.existsSync(`art/${a}.js`)) fail(`art/${a}.js is mis
 // real copies, not symlinks: check and snapshot skip scene files reached through a symlinked folder
 fs.rmSync(out, { recursive: true, force: true });
 for (const d of [`compositions/${frame}`, 'art', 'assets']) if (fs.existsSync(d)) fs.cpSync(d, `${out}/${d}`, { recursive: true });
-const audio = !argv.includes('--mute') && !only;
+const audio = !argv.includes('--mute') && !only && fs.existsSync('song/song.wav');
+if (!argv.includes('--mute') && !only && !audio) console.warn('build: no song/song.wav yet, so no audio');
 if (audio) { fs.mkdirSync(`${out}/assets`, { recursive: true }); fs.copyFileSync('song/song.wav', `${out}/assets/song.wav`); }
 fs.writeFileSync(`${out}/timing.js`, `window.FILM = ${JSON.stringify(FILM)};\n`);
 const look = arg('--look') && read('looks.json').looks.find(l => l.id === arg('--look'));
@@ -71,4 +73,4 @@ window.__timelines["main"] = gsap.timeline({ paused: true });</script>
 </body>
 </html>
 `);
-console.log(`built ${out}: ${placed.length} scenes, ${dur} s, art ${art.size}${audio ? ', with audio' : ''}${look ? ', look ' + look.id : ''}`);
+console.log(`built ${out}: ${placed.length} scenes, ${dur} s, art ${art.size}${audio ? ', with audio' : ''}${look ? ', look ' + look.id : ''}${timing.provisional ? ', PROVISIONAL timing' : ''}`);

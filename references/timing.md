@@ -1,8 +1,22 @@
 # Timing the lyrics to the word
 
-Read this at stage 2, once `song/song.wav` and `song/lyrics.json` exist, and again after any change to the audio.
+Read this at stage 2, once `song/song.wav` and `song/lyrics.json` exist, and again after any change to the audio. Read the first section earlier if you build scenes before the song exists.
 
 Output: `song/vocals.wav`, `song/timing.json`, `song/labels.txt`, `song/beats.json`. Working files go in `align/`.
+
+## Before the song exists: provisional timing
+
+Scenes can be planned and built while the human is still making the song. Give every line in `song/lyrics.json` an `est`, its estimated sung length in seconds (count the syllables against the planned tempo), then:
+
+```sh
+node "$SKILL_DIR/scripts/align-to-timing.mjs" --provisional
+```
+
+- It lays the lines back to back from their `est` (0.25 s apart, 1.5 s more between sections), spreads each line's words evenly, and writes `song/timing.json` with `"provisional": true`. It also prints a CHECK row for every line whose caption and sung word counts differ with no `map`, so a missing `map` shows up before any audio exists.
+- Build and check scenes on it as usual. Builds run without audio until `song/song.wav` exists, and they print "PROVISIONAL timing".
+- Design every scene for a word landing anywhere in its line: no layout that only works if a word lands where it is now. Reason: the real times differ.
+- A scene with no sung lines has a guessed `start` in `scenes.json`. Set it again from the real song.
+- Once the song exists, run the rest of this file. The real `timing.json` replaces the provisional one; rebuild and re-check every scene. Never render on provisional timing.
 
 ## Why forced alignment on the vocal stem
 
@@ -159,6 +173,7 @@ Space the moves out. A cut or a short colour flip (a filter on the whole scene f
 ## Done when
 
 - [ ] `song/vocals.wav` has the mix's duration and a 0.0 ms offset.
+- [ ] `song/timing.json` came from the aligner: it has no `"provisional"` key.
 - [ ] Every line in `song/timing.json` has `t`, `end` and `words`. No line overlaps the next.
 - [ ] Every flagged line is reviewed, and each fix has a reason in `song/timing-fixes.json`.
 - [ ] Five line starts after pauses, checked by ear, sit on the voice and not before it.

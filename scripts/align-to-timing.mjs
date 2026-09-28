@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Turn forced-alignment results into song/timing.json and song/labels.txt.
 //   node "$SKILL_DIR/scripts/align-to-timing.mjs" [--sections align/sections.json] [--fixes file] [--duration seconds]
-// Fixes default to song/timing-fixes.json when that file exists.
+//   node "$SKILL_DIR/scripts/align-to-timing.mjs" --provisional
+// Fixes default to song/timing-fixes.json when that file exists. --provisional needs no song: it lays the lines back to
+// back from each line's "est" (estimated seconds), spreads the words evenly and marks the file "provisional": true, so
+// scenes can be built before the song exists. The real alignment replaces it.
 // Run it from the video project root. It reads song/lyrics.json and the aligner results that sections.json names
 // (default: align/song.json holding every line, in order). A result is ElevenLabs-shaped: { words: [{ text, start,
 // end, loss }] }, optionally wrapped in { result }. sections.json: [{ "file", "shift", "ids" }]: the lines of that
@@ -21,8 +24,9 @@ const lineOf = id => byId[id.replace(/^~/, '')] || die(`${id} is not in song/lyr
 const sections = arg('--sections') ? read(arg('--sections')) : [{ file: 'align/song.json', shift: 0, ids: lyrics.map(l => l.id) }];
 const fixesFile = arg('--fixes') ?? (fs.existsSync('song/timing-fixes.json') ? 'song/timing-fixes.json' : null);
 const fixes = fixesFile ? read(fixesFile) : {};
+const provisional = argv.includes('--provisional');
 let duration = arg('--duration');
-if (duration == null) try {
+if (duration == null && !provisional) try {
   duration = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', 'song/song.wav']).toString();
 } catch { die('no --duration and ffprobe could not read song/song.wav'); }
 duration = r3(+duration);
@@ -39,6 +43,25 @@ function captionWords(l) {
     else { out.push(open + ch); open = ''; }
   }
   return out;
+}
+
+// --provisional: each line lasts its "est" seconds, 0.25 s apart and 1.5 s more between sections, words spread evenly.
+if (provisional) {
+  const out = { provisional: true, duration: 0, lines: {} };
+  let t = 0.5;
+  lyrics.forEach((l, i) => {
+    if (!(l.est > 0)) die(`${l.id} has no "est" (its estimated length in seconds)`);
+    if (i && l.section !== lyrics[i - 1].section) t += 1.5;
+    const caps = captionWords(l), n = sungWords(l).length, m = l.map, step = l.est / caps.length;
+    out.lines[l.id] = { t: r3(t), end: r3(t + l.est), words: caps.map((w, k) => ({ w, t: r3(t + k * step), end: r3(t + (k + 1) * step) })) };
+    if (m ? m.length !== caps.length || m.reduce((a, b) => a + b, 0) !== n : caps.length !== n)
+      console.log(`${l.id.padEnd(8)} CHECK ${m ? '"map" does not fit' : 'no "map"'}: ${caps.length} caption words, ${n} sung words`);
+    t += l.est + 0.25;
+  });
+  out.duration = r3(t + 1.5);
+  fs.writeFileSync('song/timing.json', JSON.stringify(out, null, 1) + '\n');
+  console.log(`wrote a provisional song/timing.json: ${lyrics.length} lines, ${out.duration} s`);
+  process.exit(0);
 }
 
 // Each result file, split into lines at its line-break entries (or by sung word counts when it has none).

@@ -119,7 +119,7 @@ function tick() {
 ## Restyle a window
 
 1. Tokens: one `<style>` element in the window's `<head>`, rewritten on every look change:
-   `[data-composition-id],[data-composition-id] *{--k-paper:#FFFFFF !important;--k-ink:#1E120C !important;/* all 15 tokens */}`
+   `[data-composition-id],[data-composition-id] *{--k-paper:#FFFFFF !important;--k-ink:#1E120C !important;/* all 19 tokens */}`
    Target the hosts and all their descendants: a scene's own `#root` rule shadows tokens set only on the host.
 2. Fonts: add the look's `fonts` stylesheet once per window, in a quiet moment. A look whose faces are wider than the film's gets `size-adjust` copies under renamed families, so the scenes keep their layout.
 3. Art: call the window's art helper, `w.player.iframeElement.contentWindow.reinkArt(look.inks)`. `reinkArt(null)` restores each scene's own inks.

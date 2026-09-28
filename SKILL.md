@@ -81,6 +81,8 @@ out/         builds; renders/ films; site/ the optional live page
 
 Run the [qa.md](references/qa.md) list for each stage before the next one.
 
+Keep the lyrics, the music model's lyrics box and the scene plan in one source file that generates `song/lyrics.json`, the lyrics box text and `scenes.json`. Give each line an estimated length and run `align-to-timing.mjs --provisional`, so scenes are built while the human makes the song ([timing.md](references/timing.md)). Reason: hand-edited copies drift, and scenes read their times from `song/timing.json`, so the real alignment then needs only a rebuild.
+
 ## Rules
 
 1. Align lyrics against the isolated vocal stem, never the mix. Reason: drums and pads smear word onsets.
@@ -91,7 +93,7 @@ Run the [qa.md](references/qa.md) list for each stage before the next one.
 6. Never use text drawn by an image model; draw text in code. Reason: model text is garbled and cannot be restyled.
 7. Route every colour, font, radius and shadow through `--k-*` tokens. Reason: one token swap restyles the whole film.
 8. Never tween a colour with GSAP; switch a class or crossfade two layers. Reason: a tweened colour ignores later token swaps.
-9. Text on paper uses `--k-ink`, on panels `--k-on-surface`, on accents `--k-on-accent`. Reason: in another look the paper can be black.
+9. Text on paper uses `--k-ink`, on panels `--k-on-surface`, on `--k-accent` fills `--k-on-accent`. Reason: in another look the paper can be black.
 10. Switch shots with `opacity` or `display`, never `visibility: visible`. Reason: it overrides the runtime hiding the scene, so the shot paints over every other scene.
 11. Keep blend-mode textures inside each scene. Reason: in a separate overlay they composite as a grey veil over the film.
 12. Drive JavaScript side effects from a getter/setter tween, not `tl.call`. Reason: the renderer seeks with events suppressed.

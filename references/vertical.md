@@ -52,7 +52,7 @@ node "$SKILL_DIR/scripts/edge-check.mjs" out/vert --at 12.4,31   # given moments
 
 A look changes paper, ink, accents and fonts at once. Text that was fine in one look can vanish in another (black on black, neon on neon, cream on sage).
 
-- Text on paper uses `--k-ink`. Text on a card or panel uses `--k-on-surface`. Text on an accent block uses `--k-on-accent`.
+- Text on paper uses `--k-ink`. Text on a card or panel uses `--k-on-surface`. Text on an `--k-accent` block uses `--k-on-accent`. Text in the accent-2 or accent-3 hue uses `--k-text-2` or `--k-text-3`.
 - Never colour text with `--k-paper` or `--k-surface`, and never assume the paper is light. Reason: some languages pair a dark paper with a light surface, so no single text colour works on both.
 - Size highlight and marker blocks from their text (padding on the text element), never with fixed widths. Reason: a wider font in another look pushes the glyphs off the block.
 - Text over traced art gets a solid block behind it, or a halo in the opposite token. Reason: the art's tones change with every look.
@@ -62,7 +62,7 @@ A look changes paper, ink, accents and fonts at once. Text that was fine in one 
 Test every look before you render. The build's `--look <id>` option (see `scenes-and-styles.md`, section 6) writes the look's rule into the `<head>` of the built `index.html`, after `art/art.js`, and re-inks the art:
 
 ```html
-<style>[data-composition-id],[data-composition-id] *{--k-paper:#0A0A0A!important;--k-ink:#F2F2F2!important;--k-on-surface:#F2F2F2!important;/* all 15 tokens */}</style>
+<style>[data-composition-id],[data-composition-id] *{--k-paper:#0A0A0A!important;--k-ink:#F2F2F2!important;--k-on-surface:#F2F2F2!important;/* all 19 tokens */}</style>
 <script>reinkArt(["#0A0A0A", "#1F8F52", "#55FF55"]);</script>
 ```
 
