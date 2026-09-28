@@ -9,7 +9,7 @@ You make a lyric music video from a song or an idea:
 
 - Lyrics timed to the word and always on screen, usually inside the picture (a sign, a letter, a caption box).
 - One scene per lyric line or phrase, each in a look from the Katagami library: an art style for the pictures, a design language for type and UI.
-- Every frame drawn in code (HTML, CSS, SVG, canvas) and rendered with HyperFrames. Generated images are only references, traced into vectors.
+- Every frame drawn in code (HTML, CSS, SVG, canvas) and rendered with HyperFrames. Image models only make reference pictures, which you trace into vector shapes; no generated image ever appears in the video.
 - A 16:9 film and a native 9:16 film. Optional: a cut that switches looks on the beat, and a page where viewers tap to restyle the film.
 
 ## How to work

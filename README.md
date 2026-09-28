@@ -1,6 +1,6 @@
 # Make a music video with Katagami
 
-An agent skill that turns any song into a lyric music video: word-timed lyrics, one code-drawn scene per line in Katagami looks, rendered with HyperFrames at 16:9 and native 9:16.
+An agent skill that turns any song into a lyric music video: word-timed lyrics, one scene per line in Katagami looks, every frame drawn in JavaScript (generated images are only traced references, never shown), rendered with HyperFrames at 16:9 and native 9:16.
 
 https://github.com/user-attachments/assets/11b08858-6a57-4e33-bf58-fd67a676ee9d
 
