@@ -72,6 +72,7 @@ out/         builds; renders/ films; site/ the optional live page
 3. **Scenes and looks** ([scenes-and-styles.md](references/scenes-and-styles.md)).
    - One line or couplet per scene, with a one-sentence idea.
    - Two or three modes for the whole film. Reason: a new look every line with no system reads as noise.
+   - A new video gets its own cast, characters and looks. Never reuse characters, art or scenes from an earlier video unless the user asks for a sequel. Reason: a reused character makes a new video read as a rerun of the last one.
    - Looks from Katagami: `compose_kit` for the base look, `ask_library` per scene, `search_library` for a named style, `get_library_entry` for an art style's prompt, `get_design_tokens` for a language's tokens.
    - Done when the user approved the plan and its looks.
 4. **Build** ([scenes-and-styles.md](references/scenes-and-styles.md)). Reference images from the art style's own template, traced into vector plates. One finished reference scene, then the rest. Done when each scene's `--only` build passes `npx hyperframes check`.
