@@ -1,19 +1,20 @@
 # QA checklists
 
-Read this at the end of every stage. Each list must pass before the next stage starts. Reason: a problem found one stage later usually costs a re-render.
+Read this at the end of every stage, in either mode. Each list must pass before the next stage starts. Reason: a problem found one stage later usually costs a re-render.
 
 When feedback is vague ("it looks cut off", "it feels late"), turn it into a measured check first, then fix until the same check passes. Reason: a check lists every case, and the same instrument proves the fix.
 
-Run every command from the video project, where `npm i -D hyperframes` pinned one HyperFrames version. `$SKILL_DIR` is this skill's folder.
+Run the HyperFrames commands from the video project, where `npm i -D hyperframes` pinned one HyperFrames version. `$SKILL_DIR` is this skill's folder.
 
 | Stage (SKILL.md) | Lists |
 | --- | --- |
 | 1. The song | Stage 1 |
 | 2. Timing | Stage 2 |
-| 3. Scenes and looks | Stage 3 |
-| 4. Build the scenes | Stage 4: each scene, Stage 4: the whole film |
-| 5. Vertical, looks and render | Stage 5: vertical and looks, Stage 5: renders, Before posting |
-| 6. The live page | Stage 6 |
+| 3. Plan and looks, 4. Boards | Stage 3 |
+| A. The code film | A: each scene, A: the whole film, A: vertical and looks, A: renders, A: the live page |
+| B. The cinematic cut | B: stills and takes, B: the edit, B: the type layer |
+| Both modes, every full render | The review pass |
+| The release | Before posting, and [release.md](release.md) |
 
 ## Stage 1: the song
 
@@ -29,18 +30,20 @@ Run every command from the video project, where `npm i -D hyperframes` pinned on
 - [ ] Every line in `song/timing.json` has `t`, `end` and `words`, and no line overlaps the next.
 - [ ] Every CHECK row that `align-to-timing.mjs` printed was reviewed, and each fix has a reason in `song/timing-fixes.json`.
 - [ ] Five line starts that follow a pause sit on the voice, checked by ear. None starts early.
-- [ ] `song/beats.json` exists, and a chorus starts on a downbeat.
+- [ ] `song/beats.json` exists, and a chorus starts on a downbeat, before and after every stop.
+- [ ] Every held word has its measured end in `holds`.
 
-## Stage 3: scenes and looks
+## Stage 3: plan and boards
 
-- [ ] Every lyric line is in exactly one scene, and every scene has a one-sentence idea.
-- [ ] The film uses two or three modes, and each scene names its mode.
-- [ ] Each scene's Katagami entries are recorded, and the user saw the thumbnails and katagami.ai links.
-- [ ] Every mode and every restyle look in `looks.json` lists all 19 tokens, its fonts and an ink ramp. The original look has `"k": null`.
+- [ ] Every lyric line is in exactly one scene or shot, and each has a one-sentence idea.
+- [ ] `BAR.md` quotes the user, with a never-list, and every board frame was checked against it.
+- [ ] Each scene's or shot's Katagami entries are recorded, and the user saw the thumbnails and katagami.ai links.
+- [ ] The user said yes to the board.
+- [ ] Code film: the film uses two or three treatments, and each scene names its treatment. With HyperFrames, every treatment and every restyle look in `looks.json` lists all 19 tokens, its fonts and an ink ramp, and the original look has `"k": null`.
 
-## Stage 4: each scene
+## A: each scene
 
-`check` runs on a built project, so build the scene alone (an `--only` build) and check that:
+For a canvas engine, shoot stills with the QA overlay in both shapes and use the list in [canvas-engine.md](canvas-engine.md) (Done when). For HyperFrames, `check` runs on a built project, so build the scene alone (an `--only` build) and check that:
 
 ```sh
 node build.mjs --frame wide --only s07,s08 --out out/check-s07
@@ -61,7 +64,7 @@ done
 - [ ] Every shot moves; no still hold longer than about 1.2 s.
 - [ ] Traced art matches its reference: faces intact, no plate edges showing during pushes and pans.
 - [ ] Non-English lines show the native script and the translation together.
-- [ ] The Katagami credit (the scene's `.k-credit` element) is on screen and names the right entries.
+- [ ] If the film credits looks in the frame, the scene's `.k-credit` element names the right entries.
 - [ ] The grep gate prints nothing:
 
 ```sh
@@ -70,35 +73,69 @@ grep -nE "<img|data:image|url\\(['\"]?[^#'\")]|Math\\.random|Date\\.now|new Date
 
 - [ ] Every hex colour outside the `#root` token block is justified (each one will not restyle).
 
-## Stage 4: the whole film
+## A: the whole film
 
 - [ ] A full build plays scene to scene with no scene painting over another. Compare one scene alone with the same moment in the full build: a grey veil or a darker white means a blend-mode or filter layer is leaking.
 - [ ] Contact sheet: two frames per scene across the whole film, read at phone size.
 - [ ] Captions never lead the voice. Scrub five cuts after pauses with sound.
 
-## Stage 5: vertical and looks
+## A: vertical and looks
 
-- [ ] Every scene has a native 9:16 file; nothing is letterboxed or cropped from 16:9.
-- [ ] Lyrics sit above y 1680, key text stays out of the right 120 px, and no empty band is taller than about 100 px.
+- [ ] Every scene has a native 9:16 layout; nothing is letterboxed or cropped from 16:9.
+- [ ] Every second of the tall film passed the zone check in [vertical.md](vertical.md), section 2.
 - [ ] `node "$SKILL_DIR/scripts/edge-check.mjs" out/vert` reports 0 elements and 0 font problems.
 - [ ] SVG-drawn UI near the bottom edge looks complete in the snapshots (the edge check skips SVG).
 - [ ] For every restyle look: a `--look` build passes `check` (contrast included) in both frames, and its snapshots show no text lost against its ground.
 
-## Stage 5: renders
+## A: renders
 
 - [ ] Every chunk rendered; failed chunks were rendered again, not the whole film.
 - [ ] `ffprobe` duration of each film matches the song within one frame.
 - [ ] Watched both films end to end with sound: sync holds at the end as well as the start.
 - [ ] The encoded copies play on a phone, and the phone copy's size fits where it will be posted.
 
+## B: stills and takes
+
+- [ ] Every still names an empty type field, and passed review at viewing size next to the film's best frames.
+- [ ] Every take in the edit passed the gates in [cinematic-cut.md](cinematic-cut.md), section 4: no extra faces, no
+      raised arms, no morphing faces, no realistic drift, and its window was read at the length it plays.
+- [ ] Old takes that a retake replaced are rejected by name.
+
+## B: the edit
+
+- [ ] Every cut sits on the beat grid, and the joined picture's frame count matches the song.
+- [ ] Every section's grade stays in the film's palette.
+- [ ] Shot windows changed by a re-time were reviewed again at their new length.
+
+## B: the type layer
+
+- [ ] The list in [type-layer.md](type-layer.md) (Done when) passes.
+
+## The review pass
+
+Run it on every full render, in both modes. Scene-by-scene sheets miss what only the whole film shows.
+
+```sh
+# one frame a second on 6x6 sheets with the time on each frame
+ffmpeg -v error -y -i renders/wide.mp4 -vf "fps=1,scale=480:-1,drawtext=text='%{pts\:hms}':x=8:y=8:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.6,tile=6x6" review/wide-%02d.jpg
+```
+
+- [ ] A reviewer (an agent with the bar, or the user) read every sheet and ranked the problems against `BAR.md`.
+- [ ] Every claim about a size or a position was checked on a full-resolution crop. Reason: a reviewer called a figure 15% of the frame from 360 px tiles; it was 60%.
+- [ ] Margins were measured on the joined file's pixels (for light type on dark: the outermost row or column with three light pixels side by side), and the instrument was first run on a frame known to fail, to see it fail ([SKILL.md](../SKILL.md), rule 10).
+- [ ] No sung line moves, scales or dims while its words land ([SKILL.md](../SKILL.md), rule 5). When a line "looks late", measure its word times first, then look for motion on it.
+- [ ] Paused frames show nothing from the never-list ([planning.md](planning.md), section 5).
+
 ## Before posting
 
 - [ ] Captions spelled exactly as `text` in `lyrics.json`, including names and native scripts.
-- [ ] The Katagami credits and any music credit are correct.
+- [ ] The Katagami credits name katagami.ai and every entry, and the music credit is correct.
 - [ ] You have the rights to the song and to any likeness in it: no real person's face, no real logos.
+- [ ] [release.md](release.md) passes.
 
-## Stage 6: the live page (optional)
+## A: the live page (optional)
 
+- [ ] The page has one media element, started by the viewer's tap, and it works on a real phone inside an app's web view and in Low Power Mode.
 - [ ] It plays the MP4 with sound by default, on desktop and on a phone.
 - [ ] A tap answers within one frame (chip, name, ripple), and a 10-tap burst ends on the last look tapped within about 350 ms.
 - [ ] Live windows switch at scene cuts with no flash; back to original shows the MP4.

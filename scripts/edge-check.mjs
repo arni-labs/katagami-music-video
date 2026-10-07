@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Bottom-edge and font check for HyperFrames builds (made for 9:16; it runs at the build's canvas size). Needs Node 22+ and Playwright
 // (npm i -D playwright && npx playwright install chromium).
-//   node edge-check.mjs <built-project-dir> [--margin 48] [--at 1.5,4,7.2] [--samples 6] [--out report.txt] [--hf-version x.y.z]
+//   node edge-check.mjs <built-project-dir> [--margin 64] [--at 1.5,4,7.2] [--samples 6] [--out report.txt] [--hf-version x.y.z]
 // Plays the build (the folder holding index.html) in Chromium at its canvas size and seeks to sample times: --at (film
 // seconds), else --samples moments in every scene host (default 5, 30, 50, 70, 85 and 97% of each scene), else 40
 // moments across the film. It lists visible UI (text, a visible border, a background fill or a box-shadow) that the
@@ -22,7 +22,7 @@ import { createRequire } from 'node:module';
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const dir = path.resolve(args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--'))) || '.');
-const MARGIN = +opt('--margin', '48'), SAMPLES = +opt('--samples', '6'), OUT = opt('--out');
+const MARGIN_OPT = opt('--margin'), SAMPLES = +opt('--samples', '6'), OUT = opt('--out');
 const AT = opt('--at') ? opt('--at').split(',').map(Number) : null;
 const fail = msg => { console.error('edge-check: ' + msg); process.exit(2); };
 const up = function* (p) { for (; ; p = path.dirname(p)) { yield p; if (p === path.dirname(p)) return; } };
@@ -70,6 +70,8 @@ if (!fs.existsSync(index)) fail(`no index.html in ${dir} (pass a built HyperFram
 const rootTag = (fs.readFileSync(index, 'utf8').match(/<[^>]*data-composition-id=[^>]*>/) || [''])[0];
 const W = +(rootTag.match(/data-width="(\d+)"/) || [])[1], H = +(rootTag.match(/data-height="(\d+)"/) || [])[1];
 if (!W || !H) fail('the root composition has no data-width / data-height');
+// the film's margins: 64 px in a tall frame, 72 px in a wide one, unless --margin says otherwise
+const MARGIN = MARGIN_OPT != null ? +MARGIN_OPT : W > H ? 72 : 64;
 
 const RUNTIME = await runtimeSource();
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
