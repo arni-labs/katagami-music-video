@@ -95,7 +95,7 @@ Then, shared again:
 
 5. **The review pass** on every full render ([qa.md](references/qa.md)), for a number of rounds fixed in advance.
 6. **The release** ([release.md](references/release.md)): versions for each platform, encodes, covers, the Katagami
-   recipe draft, post drafts, distribution and the film's page.
+   recipe draft, post drafts, distribution and, for a code film, its page.
 
 Run the [qa.md](references/qa.md) list for each stage before the next one. With several agents, follow
 [production.md](references/production.md).

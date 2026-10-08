@@ -1,7 +1,7 @@
 # The release kit
 
 Read this when the film is final, in either mode: the versions for each platform, the encodes, the covers, the
-Katagami recipe, the post drafts, distribution and the film's page. The agent prepares everything; the user posts,
+Katagami recipe, the post drafts, distribution and a code film's page. The agent prepares everything; the user posts,
 signs in, pays and submits.
 
 ## 1. Versions for each platform
@@ -46,7 +46,7 @@ ffmpeg -v error -y -i renders/wide.mp4 -vf "$CONV" -c:v libx264 -preset slow -cr
 ffmpeg -v error -y -i renders/vert.mp4 -vf "$CONV" -c:v libx264 -preset medium -b:v 2700k -pass 1 -an -f mp4 /dev/null
 ffmpeg -v error -y -i renders/vert.mp4 -vf "$CONV" -c:v libx264 -preset medium -b:v 2700k -maxrate 5M -bufsize 10M -pass 2 -r 30 \
   $TAGS -c:a aac -b:a 160k -ar 48000 -movflags +faststart renders/vert-phone.mp4
-# web copies for the film's page
+# web copies for a code film's page
 ffmpeg -v error -y -i renders/wide.mp4 -vf "scale=1280:720,$CONV" -c:v libx264 -crf 25 -maxrate 3M -bufsize 6M $TAGS -c:a aac -b:a 160k -movflags +faststart renders/web-wide.mp4
 ```
 
@@ -129,6 +129,9 @@ own. The agent prepares it; **publishing it needs a Katagami curator.** The publ
 - A Spotify Canvas loop: 3 to 8 s, 9:16, one continuous stretch with no singing and no cuts, added after delivery.
 
 ## 8. The film's page
+
+A cinematic cut needs no page; the page is for a film people can restyle live. A cinematic cut lives as the posted
+video. For a code film's page:
 
 - Once a link is public, change it only through a preview path, and ship to the public link once. After each deploy,
   check the public files are byte-identical to what you meant to ship.
