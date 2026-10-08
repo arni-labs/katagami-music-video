@@ -1,6 +1,6 @@
 # Lyrics and the song
 
-Read this at stage 1. It covers both cases: the user has a song, or the user only has an idea.
+Read this at stage 1, in either mode. It covers both cases: the user has a song, or the user only has an idea.
 
 Output: `song/song.wav` and `song/lyrics.json`.
 
@@ -21,6 +21,7 @@ Infer the mood, the genre and the audience from the idea. Ask only for what it d
 
 ### Craft
 
+- **The subject.** A song about a field is about its ideas, techniques and moments. Never make the person asking, their work or their tools the subject or the narrator unless they ask for it. Reason: asked for a song about a field, with their own paper as the source, a draft made the requester the subject, and they said "Don't make it about me." Use their work only as a source of general methods.
 - **The hook.** Three to seven words that say the idea. It is the title. Put it on a downbeat and repeat it in every chorus. Test it: could someone reply to a post with just the hook?
 - **Structure.** Intro, verse, pre-chorus, chorus, verse, pre-chorus, chorus, bridge, final chorus, outro. Aim for 2.5 to 4 minutes. The bridge turns: a new angle, a quieter voice, or another language. The final chorus can change its last line.
 - **Verse density.** One concrete picture or joke per line. Use many different ideas, not one joke stretched over a verse. Prefer nouns you could draw.
@@ -45,6 +46,7 @@ How to write `sung`:
 - Use kana for a Japanese particle the model reads by its spelling: the topic particle は is sung "wa", so write わ.
 - If the model reads a line as a neighbouring language, respell it in a script that forces the right sounds, or in Latin letters.
 - Parentheses mean backing vocals or ad-libs in many music models. Use them on purpose. The aligner treats a parenthesised span as one non-speech token, so the timing step strips them.
+- A held word: say so in the section tag ("[slow, holding the last word]") and spell the hold out in the lyrics box ("ne-e-ext"). Keep `sung` as the plain word for the aligner, and record the hold's true end after alignment ([timing.md](timing.md), section 7). Reason: on a past take the tag and the spelled-out hold together gave a word held for four seconds, and the film then had to keep that word on screen for the whole hold.
 
 ## lyrics.json
 
@@ -86,12 +88,12 @@ Any music model works if it takes lyrics and a style prompt. Suno is one example
 1. **Style prompt.** Genre, tempo in BPM, mood, instrumentation, and which voice sings or speaks each section, all chosen for this song. Pairings range widely, for example "breathy spoken verses, stacked-harmony chorus", "one crooner throughout, a choir on the bridge" or "call and response between two singers"; none of them is a default. Do not name a living artist. Reason: services often block artist names, and copying a real singer's voice raises rights problems.
 2. **Lyrics box.** Section tags (`[Verse 1]`, `[Pre-Chorus]`, `[Chorus]`, `[Bridge]`) and the `sung` spellings, generated from the source file.
 3. **Generate several takes.** Pick for diction (every word clear on a phone speaker), a hook that lands, and a steady tempo.
-4. **Fix single lines** with the tool's replace-section or edit feature. Note the time range and the exact new text.
-5. **Export lossless WAV** to `song/song.wav` (48 kHz).
+4. **Fix single lines** with the tool's replace-section or edit feature. Note the time range and the exact new text. An edit re-renders the whole performance, so carry the timing over as [timing.md](timing.md), section 8 says.
+5. **Export lossless WAV** to `song/song.wav` (48 kHz). Suno exports WAV and stems only from its website, not the app. Ask for the stems too ([timing.md](timing.md), section 1).
 6. **Keep a note** (for example `song/NOTES.md`): the take, the style prompt and the exact lyrics text sent. A later fix then starts from the same inputs.
-7. **Check the terms.** The service's terms must allow the use you plan (public posting, commercial use).
+7. **Check the terms.** The service's terms must allow the use you plan (public posting, commercial use). Suno, for example, grants commercial rights only for songs made on a paid plan; ask the user which plan made the take before any distribution ([release.md](release.md), section 7).
 
-After any change to the audio, run the timing step again ([timing.md](timing.md)).
+After any change to the audio, update the timing ([timing.md](timing.md)): a new take is aligned again, an edited take carries its times.
 
 ## Rules
 

@@ -1,6 +1,21 @@
 # Live restyle page
 
-Read this for the optional last stage: a web page where viewers tap the film to restyle it live in other Katagami looks. Do it after both films render and pass QA.
+Read this for the code film's optional last stage: a web page where viewers tap the film to restyle it live in other Katagami looks. Do it after both films render and pass QA.
+
+## Pick the design: one video, always
+
+The page plays one video, the one the viewer's tap started, and that video carries the sound. A look is drawn over it or into it; it is never a second video. Two designs work:
+
+- **Live windows** (HyperFrames films, the rest of this file): small live compositions of the same moment, muted, laid over the video. Right for type- and UI-led films with light vector plates.
+- **Re-ink the playing video** (canvas-engine films): a WebGL pass maps the video's frames into the tapped look's colours, with the effect landing where the viewer tapped. On iOS Safari a tap inked within 2 to 11 ms.
+
+Designs that failed on phones:
+
+- **Live engine windows for a heavy canvas film.** Preparing a scene took up to 3.6 s on the main thread, phones ran out of memory, and a phone and a laptop browser froze and crashed.
+- **Each look as its own MP4, loaded on a tap and seeked to the moment.** Keyframes up to 6.5 s apart meant seconds of decoding per seek, and unmuting outside the tap's gesture moved the sound.
+- **The song on its own audio clock, with muted films following it and the next look's film preloaded and playing behind.** It was perfect in desktop Chrome and in the iOS Simulator, and it did nothing on a real iPhone in an app's web view: the hidden video's `play()` counts as autoplay, which in-app web views and Low Power Mode block, so the tap waited forever.
+
+Test with the page reduced to one media element, and on a real phone, inside an app's web view and in Low Power Mode. Playwright's WebKit is not iOS Safari, and the iOS Simulator cannot give a real tap gesture (mute `play()` and click from JavaScript there). Serve the files with HTTP Range support in tests as a real host does. Reason: without it, seeking failed silently and the song restarted at 0.
 
 ## What the page does
 
@@ -123,7 +138,7 @@ function tick() {
    Target the hosts and all their descendants: a scene's own `#root` rule shadows tokens set only on the host.
 2. Fonts: add the look's `fonts` stylesheet once per window, in a quiet moment. A look whose faces are wider than the film's gets `size-adjust` copies under renamed families, so the scenes keep their layout.
 3. Art: call the window's art helper, `w.player.iframeElement.contentWindow.reinkArt(look.inks)`. `reinkArt(null)` restores each scene's own inks.
-4. Credits: each scene's credit is a `.k-credit` element. Set the text of every `.k-credit[data-kind="design language"]` to `design language: <the look's language name>, katagami.ai`, and hide the `art style` credits while a restyle look is on. Reason: the art is re-inked in the look's colours, so its art style credit no longer describes what is on screen.
+4. Credits, if the scenes carry them in the frame ([code-film.md](code-film.md), section 6): each scene's credit is a `.k-credit` element. Set the text of every `.k-credit[data-kind="design language"]` to `design language: <the look's language name>, katagami.ai`, and hide the `art style` credits while a restyle look is on. Reason: the art is re-inked in the look's colours, so its art style credit no longer describes what is on screen.
 5. The page chrome (buttons, chips, the title) takes the same tokens from the page's own `:root`.
 
 ## Fast taps
@@ -168,6 +183,7 @@ async function applyLook(i) {
 
 ## Rules
 
+- One media element, started by the viewer's tap. Never depend on a second video or audio element playing without a gesture. Reason: it passes desktop and simulator tests and fails on phones in app web views and in Low Power Mode.
 - The MP4 owns the sound; live windows are always muted. Reason: two audio clocks drift, and the video element is the one clock everything follows.
 - Cut windows at scene boundaries. Reason: the handover to the next window hides inside a cut.
 - Keep at most two windows alive. Reason: each window holds its scenes and vector art, and phones kill tabs that run out of memory.

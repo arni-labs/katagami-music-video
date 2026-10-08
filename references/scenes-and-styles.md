@@ -1,6 +1,6 @@
-# Scenes, looks and the scene files
+# Scenes, looks and the scene files (HyperFrames)
 
-Read this at stages 3 and 4: planning scenes, choosing Katagami looks, making reference art, and writing the HyperFrames scene files.
+Read this for the code film's HyperFrames route ([code-film.md](code-film.md)): planning scenes, the token contract, making reference art, and writing the HyperFrames scene files. The looks and the cast are chosen at stage 3 ([planning.md](planning.md)).
 
 Output: `scenes.json`, `looks.json`, `art/*.js`, `assets/fonts.css`, `compositions/wide/*.html` and your copy of `build.mjs`.
 
@@ -10,36 +10,21 @@ Cut the song into scenes of one lyric line or a couplet, usually 2 to 6 s. The i
 
 ```json
 [
-  { "id": "s01", "lines": ["i1"], "mode": "mode-a", "idea": "A kettle starts to whistle in an empty kitchen before sunrise", "art_style": "<slug>", "language": "<slug>" },
-  { "id": "s02", "lines": ["v1_1", "v1_2"], "mode": "mode-a", "idea": "A cat on the windowsill watches the street wake up", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
-  { "id": "s09", "lines": [], "start": 61.5, "mode": "mode-b", "idea": "Instrumental break: the street lights go out one by one", "art_style": "<slug>" }
+  { "id": "s01", "lines": ["i1"], "treatment": "treatment-a", "idea": "A kettle starts to whistle in an empty kitchen before sunrise", "art_style": "<slug>", "language": "<slug>" },
+  { "id": "s02", "lines": ["v1_1", "v1_2"], "treatment": "treatment-a", "idea": "A cat on the windowsill watches the street wake up", "art_style": "<slug>", "art": ["s02-blink-1", "s02-blink-2"] },
+  { "id": "s09", "lines": [], "start": 61.5, "treatment": "treatment-b", "idea": "Instrumental break: the street lights go out one by one", "art_style": "<slug>" }
 ]
 ```
 
 - One idea per scene: a joke, an image, a turn. Write it in one sentence before you design anything.
 - The lyric is always on screen, and it works best inside the picture: a sign, a letter, a label, a message on a screen, a caption box.
 - Put small details in the picture that reward a second watch (fine print, labels, a background sign).
-- Choose two or three modes for the whole film from this song's idea, for example an illustrated mode for story lines, a diagram mode for ideas and a type-only mode for punchlines, or whatever the idea needs. Every line changes treatment (layout, type, texture, motif), but only inside those modes. Record each mode's look in `looks.json` (section 3).
+- Choose two or three treatments for the whole film from this song's idea, for example an illustrated treatment for story lines, a diagram treatment for ideas and a type-only treatment for punchlines, or whatever the idea needs. Every line changes its layout, type, texture or motif, but only inside those treatments. Record each treatment's look in `looks.json` (section 3).
 - Story sections (a chorus, the bridge) can be full-frame illustrated sequences: three to six shots per scene, cut on words and beats, characters acting the line.
 
-## 2. Choose looks with the Katagami MCP
+## 2. Looks from Katagami
 
-Katagami holds design languages (tokens, rules, type and UI), palette systems and art styles (prompt recipes for images). Calls, in the order you usually need them:
-
-| Call | Use it for |
-| --- | --- |
-| `compose_kit({ query })` | The film's base look: a language, a palette and an art style judged to belong together, with a `brief_url`. |
-| `ask_library({ query, kind })` | A look for one scene or section, from a one-sentence brief ("the chorus: loud, glossy, anime energy"). |
-| `ask_library({ query, reading, changes, refine })` | Adjusting an answer ("quieter, black and white"). Pass back the `reading` and `changes` it returned. |
-| `search_library({ kind, query, tag, medium })` | A named style, tag or medium ("woodcut", "collage", `medium: "print"`). `describe_library` lists what exists. |
-| `get_library_entry({ id_or_slug })` | Everything in one entry. For an art style: `prompt_template`, `slot_recipes`, `negative_prompt`, `reference_image_urls`, do's and don'ts. |
-| `get_design_tokens({ id_or_slug, format: "css" })` | A design language's colours, radii, shadows and fonts as CSS variables, plus `fonts_url`. |
-| `check_page_against_language({ id_or_slug, page })` | After building a scene's UI: pass the scene HTML with its CSS and fix what breaks the language, worst first. |
-
-Show the user what you pick: the thumbnail and the katagami.ai `url` of each entry. Record the slugs in `scenes.json`.
-
-- `ask_library` returns `strange` next to `results`: styles unlike the rest of the library that still fit. Read both. Reason: for a comic or odd brief the best pick can be in `strange`.
-- `compose_kit` scores each kit's `belongs_together` from 0 to 1. When it is low (a paper language paired with a dark palette, say), take every token from the language and borrow only the palette's signature colours, as the spare accents. Reason: the token table below assumes one source, and two grounds that disagree break the contrast pairs.
+Choose the looks with the Katagami calls in [planning.md](planning.md), section 3, and record each scene's entries in `scenes.json`. The tokens below come from the chosen languages.
 
 ## 3. Tokens: the `--k-*` contract
 
@@ -74,13 +59,13 @@ const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - 
 contrast('#f8f1e4', '#f5efe2'); // light text on a light card: about 1.0, so on-surface takes --color-ink instead
 ```
 
-`looks.json` holds each mode's look, the original look and every restyle look:
+`looks.json` holds each treatment's look, the original look and every restyle look:
 
 ```json
 { "tokens": ["paper", "surface", "ink", "on-surface", "muted", "line", "accent", "accent-2", "accent-3", "text-2", "text-3", "on-accent", "font-display", "font-body", "font-mono", "lh-display", "lh-body", "radius", "shadow"],
-  "modes": {
-    "mode-a": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>", "lh-display": "<number>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] },
-    "mode-b": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] }
+  "treatments": {
+    "treatment-a": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>", "lh-display": "<number>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] },
+    "treatment-b": { "language": "<slug>", "art_style": "<slug>", "fonts": "<fonts_url>", "k": { "paper": "<hex>", "ink": "<hex>", "accent": "<hex>" }, "inks": ["<paper hex>", "<mid hex>", "<ink hex>"] }
   },
   "looks": [
     { "id": "original", "k": null, "inks": null },
@@ -94,9 +79,9 @@ contrast('#f8f1e4', '#f5efe2'); // light text on a light card: about 1.0, so on-
   ] }
 ```
 
-- The ids and values are placeholders. Name each mode and look after what you chose, and fill the values from its Katagami entries.
-- `modes` has one entry per mode named in `scenes.json`: its language, art style, fonts, all nineteen tokens in `k` (shortened above) and the ink ramp for its art. A scene declares its mode's tokens on its root (section 7). Reason: with several modes there is no single original look, so scene builders need each mode's tokens written down.
-- `original` has `"k": null`: each scene keeps its own mode's tokens.
+- The ids and values are placeholders. Name each treatment and look after what you chose, and fill the values from its Katagami entries.
+- `treatments` has one entry per treatment named in `scenes.json`: its language, art style, fonts, all nineteen tokens in `k` (shortened above) and the ink ramp for its art. A scene declares its treatment's tokens on its root (section 7). Reason: with several treatments there is no single original look, so scene builders need each treatment's tokens written down.
+- `original` has `"k": null`: each scene keeps its own treatment's tokens.
 - Every restyle look lists all nineteen tokens (`look-b` is shortened above).
 - `inks` is the colour ramp the traced art is re-inked with (section 5). Its first colour paints the art's lightest tone and its last colour the darkest. `look-c` has a dark paper, so its ramp starts dark and its art prints inverted, like its type.
 
@@ -117,7 +102,7 @@ fetch_fonts() {  # fetch_fonts <name> <fonts_url> [subsets]: .woff2 files into a
   done
   printf '%s\n' "$css" | sed -E 's#url\(https://fonts\.gstatic\.com/[^)]*/([^/)]+\.woff2)\)#url(assets/fonts/\1)#g' > "assets/fonts/$1.css"
 }
-fetch_fonts mode-a "<mode-a's fonts_url>"                               # one call per mode and per restyle look
+fetch_fonts treatment-a "<treatment-a's fonts_url>"                     # one call per treatment and per restyle look
 fetch_fonts look-c "<look-c's fonts_url>"
 fetch_fonts jp "<a Japanese family's fonts_url>" 'latin|latin-ext'       # CJK faces: only the subsets the film shows
 cat assets/fonts/*.css > assets/fonts.css
@@ -134,8 +119,8 @@ The art style's `prompt_template` is the recipe. Fill it, do not rewrite it.
 
 - Fill `{subject}` with the shot: who, doing what, where. Fill `{palette}` from the scene's palette. Where there is `{composition}`, use the matching `slot_recipes` entry or your shot framing.
 - Where the template ends with "Full frame.", add the framing after it: "Wide establishing shot, 16:9 film frame." or "Tall 9:16 frame, subject in the upper half."
-- Use the entry's `negative_prompt` if your image model takes one. Pass `reference_image_urls` (the style's own gallery) if it takes reference images.
-- Keep characters identical in every shot: make one character sheet per character first, then pass it as a reference image in every call that shows them. Describe the fixed traits (hair colour, clothes, silhouette) in every prompt.
+- Use the entry's `negative_prompt` if your image model takes one. Pass `reference_image_urls` (the style's own gallery) if it takes reference images ([planning.md](planning.md), section 3).
+- Keep characters identical in every shot with a character sheet ([planning.md](planning.md), section 3).
 - Screens, signs and paper in the picture: ask for "a plain blank glowing screen" or "a blank sign". Draw the text in code on top. The model often draws labels, numbers and dial faces anyway, even when the prompt forbids them: blank those regions before tracing (section 5).
 - Limited animation (a blink, a turn, a tear): call the image edit endpoint with the generated shot as the first reference. Prompt: "The exact same image, same composition, camera, colours and lighting; only change: ...". Trace each frame. Swap the frames on the timeline at 8 to 12 fps.
 - Parallax: generate the character alone "on a flat pure white background, full figure, no shadow on the ground". Cut it out: flood-fill the white from the corners, then make it transparent. Generate the background plate "with no people". Trace the two separately.
@@ -200,7 +185,7 @@ Settings that work:
 - Printed screentone (halftone dots): blur the dots away first, or every dot becomes a path and the file reaches 4 MB.
 - Keep each file under about 1.4 MB and look at the traced frame next to its reference before you use it.
 
-Plates with text: blank every label, number or dial face the model drew, then trace. The tracer keeps transparent pixels out of every plate, so each blanked region becomes a hole where the scene draws its own label or dial in code. Reason: model text is garbled and cannot be restyled (rule 6).
+Plates with text: blank every label, number or dial face the model drew, then trace. The tracer keeps transparent pixels out of every plate, so each blanked region becomes a hole where the scene draws its own label or dial in code. ([SKILL.md](../SKILL.md), rule 6).
 
 ```python
 # blank.py: python3 blank.py refs/plate.png refs/plate-blank.png --box 120,80,420,160 [--circle 900,300,70]   (source pixels)
@@ -290,7 +275,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
 ```html
 <template>
   <style>
-    #root { /* all nineteen tokens of this scene's mode, copied from looks.json */
+    #root { /* all nineteen tokens of this scene's treatment, copied from looks.json */
       --k-paper: <hex>; --k-surface: <hex>; --k-ink: <hex>; --k-on-surface: <hex>; --k-muted: <hex>; --k-line: <hex>;
       --k-accent: <hex>; --k-accent-2: <hex>; --k-accent-3: <hex>; --k-text-2: <hex>; --k-text-3: <hex>; --k-on-accent: <hex>;
       --k-font-display: '<display face>', sans-serif; --k-font-body: '<body face>', sans-serif; --k-font-mono: '<mono face>', monospace;
@@ -300,7 +285,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
     #s07-cap { position: absolute; left: 96px; right: 96px; bottom: 96px; font: 700 76px/var(--k-lh-display) var(--k-font-display); letter-spacing: -0.02em; }
     #s07-cap span { display: inline-block; margin: 0 0.16em 0.16em 0; padding: 0.04em 0.14em; background: var(--k-paper); color: var(--k-ink); }
     #s07-cap .key { background: var(--k-accent); color: var(--k-on-accent); }    /* text over art always sits on a block */
-    .k-credit { position: absolute; left: 32px; bottom: 28px; padding: 6px 12px; font: 600 22px/1 var(--k-font-body); background: var(--k-paper); color: var(--k-ink); }
+    .k-credit { position: absolute; left: 72px; bottom: 72px; padding: 6px 12px; font: 600 22px/1 var(--k-font-body); background: var(--k-paper); color: var(--k-ink); }
   </style>
   <div id="root" class="scene" data-composition-id="s07" data-width="1920" data-height="1080">
     <div id="s07-shot" data-bleed data-layout-allow-overflow></div>
@@ -313,7 +298,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
       const all = document.querySelectorAll('[data-composition-id="s07"]'), last = all[all.length - 1];
       const root = last.classList.contains('scene') ? last : last.querySelector('.scene');   // the template root, not its host
       const tl = gsap.timeline({ paused: true });
-      placeArt(root.querySelector('#s07-shot'), 'shot-07a', { inks: ['<paper hex>', '<mid hex>', '<ink hex>'] });   // the mode's ramp from looks.json
+      placeArt(root.querySelector('#s07-shot'), 'shot-07a', { inks: ['<paper hex>', '<mid hex>', '<ink hex>'] });   // the treatment's ramp from looks.json
       tl.fromTo('#s07-shot', { scale: 1 }, { scale: 1.06, duration: S.dur, ease: 'none' }, 0);     // every shot moves
       const L = S.lines[0], cap = root.querySelector('#s07-cap');
       cap.lang = L.lang || 'en';
@@ -336,7 +321,7 @@ Each scene is a HyperFrames sub-composition. Put `<style>` and `<script>` inside
 - Faces change per look. Size every text box for the widest face in any look, anchor stamps and labels by their centre or far end, and take multi-line line-height from `var(--k-lh-display)` / `var(--k-lh-body)`. Reason: a wider face then grows away from edges and lines, and a tall-boxed face does not collide with its own lines.
 - Append elements that JavaScript creates to a container in the scene's markup. Reason: an element appended to the host sits outside the scene's token scope and keeps the defaults when the look changes.
 - Non-English lines: the native script large, the `en` translation smaller, both on screen together. Set `lang` on the element and keep a Latin family first in the font stack; do not name a system CJK or Devanagari font. Reason: `lang` makes the browser pick the right glyphs, and a named system font differs from machine to machine.
-- Credit the look in the frame, small: a `.k-credit` element with `data-kind="art style"` or `data-kind="design language"` and the text "art style: Name, katagami.ai". Reason: viewers see where the look comes from, and the live page swaps the design language credit by its `data-kind`.
+- If the film credits looks in the frame ([code-film.md](code-film.md), section 6), use a small `.k-credit` element with `data-kind="art style"` or `data-kind="design language"` and the text "art style: Name, katagami.ai". Reason: the live page swaps the design language credit by its `data-kind`.
 - Use a seeded random number generator (mulberry32) instead of `Math.random`. Reason: chunks render in parallel, and every run must draw the same frame.
   `const rng = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };`
 
@@ -353,31 +338,22 @@ HyperFrames' own skills (`npx hyperframes skills`) cover the full composition co
 
 ## 9. Many scenes, many agents
 
-Parallel agents speed up a 40-scene film. Give them:
-
-1. One brief file: the hard rules, the token contract, the scene file shape, the verify commands and a table of scene, mode, language and art style. Say when the timing is provisional.
-2. One finished reference scene to copy.
-3. Their own scene ids and nothing else to edit.
-4. A gate every scene must pass, run by the lead, not only by the agent:
-
-```sh
-grep -nE "<img|data:image|url\\(['\"]?[^#'\")]|Math\\.random|Date\\.now|new Date|performance\\.now|setTimeout|setInterval|tl\\.call|repeat: ?-1|@keyframes|visibility: ?visible" compositions/*/s*.html
-grep -L 'var(--k-' compositions/*/s*.html        # scenes that never read a token
-```
-
-The first command must print nothing. `url(#id)` references to SVG patterns are allowed; any other `url(` loads an image. Then look at every hex colour outside the `#root` token block: each one is a colour that will not restyle. Then build each scene in every restyle look and snapshot one key moment of each ([qa.md](qa.md), stage 4).
+Parallel agents speed up a 40-scene film. Set them up as [production.md](production.md) says: one brief file (here with the token contract, the scene file shape and the verify commands), one finished reference scene, and their own scene ids. The lead runs the grep gate in [qa.md](qa.md) (stage 4, each scene) on every scene, not only the agent.
 
 ## Rules
 
 - Honour the chosen language's tokens and the art style's recipe exactly. Reason: the Katagami credit on screen promises that look.
-- Keep a system of two or three modes across the film. Reason: variety inside a system reads as a style, and variety without one reads as noise.
-- Never ship the image model's pixels or its text. Reason: every frame stays code, and code can be restyled and translated.
+- Keep a system of two or three treatments across the film. Reason: variety inside a system reads as a style, and variety without one reads as noise.
+- Never ship the image model's pixels. Reason: every frame stays code, and code can be restyled and translated.
+- Never tween a colour with GSAP; switch a class or crossfade two layers. Reason: a tweened colour ignores later token swaps.
+- Keep blend-mode textures inside each scene. Reason: in a separate overlay they composite as a grey veil over the film.
+- Drive JavaScript side effects from a getter/setter tween on the timeline, not `tl.call`. Reason: the renderer seeks with events suppressed, so a `tl.call` never fires on a seek ([vertical.md](vertical.md), section 5 has the pattern).
+- Keep every scene deterministic: a seeded random, no clocks, finite repeats, no CSS animations. Reason: frames render out of order, in parallel chunks.
 - Check each traced image next to its reference. Reason: smoothing that cleans a background can erase a face.
-- Build one reference scene end to end before the others. Reason: every later scene copies its mistakes too.
 
 ## Done when
 
 - [ ] `scenes.json` has every line in exactly one scene, each with an idea and its Katagami entries.
-- [ ] `looks.json` has every mode, the original look and every restyle look; each mode and restyle look has all nineteen tokens, fonts and inks, and its text pairs reach 4.5:1.
+- [ ] `looks.json` has every treatment, the original look and every restyle look; each treatment and restyle look has all nineteen tokens, fonts and inks, and its text pairs reach 4.5:1.
 - [ ] Every scene's `--only` build passes `npx hyperframes check` with 0 errors, and its snapshots look designed from the first frame.
 - [ ] The grep gate prints nothing, and every hex colour outside the token block is justified.

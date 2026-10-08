@@ -1,8 +1,8 @@
 # Vertical, every look, and the render
 
-Read this at stage 5: composing the 9:16 film, testing every look, the optional beat-looks cut, and rendering and encoding both films.
+Read this for the code film's 9:16 film. Sections 1 to 3 apply to any code film; sections 4 to 6 are the HyperFrames route: testing every look, the optional beat-looks cut, and rendering both films. The cinematic cut has no 9:16 film ([cinematic-cut.md](cinematic-cut.md)).
 
-Output: `compositions/vert/*.html`, `renders/wide.mp4`, `renders/vert.mp4` and the encoded copies.
+Output: `compositions/vert/*.html` (or the canvas engine's tall layouts), `renders/wide.mp4` and `renders/vert.mp4`. The encoded copies for each platform are in [release.md](release.md), section 3.
 
 ## 1. Compose the vertical for vertical
 
@@ -11,19 +11,34 @@ The vertical is its own film at 1080x1920. Same scenes, lines, jokes, language a
 - Start from the 16:9 scene file and re-lay it out. Keep the scene id and the timing code.
 - No letterbox bands, no cropped 16:9 frame, no duplicated lyrics, no style labels floating in empty space.
 - Stack rather than shrink: the picture or UI on top, the lyric below; or panels one above another.
-- Full-bleed art with type over it works well. Frame a 9:16 window into the vector art with `fit: 'xMidYMid slice'` on a tall box, and pan or push across the drawing. The art is vector, so any crop stays sharp. Keep faces in frame.
+- Full-bleed art with type over it works well, laid out again for the tall frame: the subject placed and sized for 9:16, the type set for it. Keep faces in frame.
+- Never fill the tall frame by scaling up the 16:9 picture's middle. Reason: on a past film the 16:9 centre column scaled 1.78 times was exactly the "cropped in" look the user sent back.
 
 ## 2. The frame map
 
 | Zone | Rule |
 | --- | --- |
-| Lyrics | In the band y = 1340 to 1680, never below y 1680 |
-| Right edge | No key text in the right 120 px (Shorts, Reels and TikTok put their buttons there) |
-| Bottom edge | Every UI element ends at least 48 px above it (or the scene's side margin, if larger) |
+| Margins | Type and UI stay 64 px from every edge (72 px in the 16:9 film), measured on the rendered pixels |
+| Lyrics and key type | Above about y 1640, and above y 1520 where it reaches into x 90 to 360 (the row of friends who liked the post) |
+| Right edge | Below y 980, no key type right of about x 880 (the platform's buttons) |
 | Bleed | Only art and texture (illustration, screentone, speed lines, backgrounds) may run off an edge |
 | Empty space | No empty band taller than about 100 px |
 
 Type sizes at 1080x1920: lyrics at least 80 px (display lines 110 to 170 px), UI text at least 40 px, fine print at least 28 px.
+
+**The platform zones,** measured from a screenshot of an ordinary Instagram Reel on an iPhone (October 2026), in film pixels:
+
+| Zone | Box |
+| --- | --- |
+| Never shown | 53 px of each side |
+| Status bar, then the top icons | y 0 to 125, icons to y 245 |
+| Buttons (like, comment, share) | x 910 to 1027, y 980 to 1860 |
+| Friends who liked it | x 90 to 360, y 1520 to 1695 |
+| Name, AI label and caption | y 1695 to the bottom |
+
+- The platforms' published ad safe zones are much stricter (Meta's starts at y 1248) and were made for ads; an ordinary post's interface is what viewers see. Measure from a screenshot of the real app when you can.
+- Check every second of the tall film against these zones with a tool that reads the film's own text boxes (the edge check below for HyperFrames, the recorded text calls for a canvas engine). Reason: on a past film this check found type under the caption in four places of a short cut.
+- Measure the margins on the rendered pixels as well ([SKILL.md](../SKILL.md), rule 10).
 
 ## 3. Nothing cut at the bottom
 
@@ -43,7 +58,7 @@ node "$SKILL_DIR/scripts/edge-check.mjs" out/vert --at 12.4,31   # given moments
 ```
 
 - It plays the built film at the build's canvas size (1080x1920 for `out/vert`) and seeks to six moments in every scene.
-- It lists every visible element with text, a border, a fill or a shadow that crosses the bottom edge. It also lists those that end inside the margin (48 px by default).
+- It lists every visible element with text, a border, a fill or a shadow that crosses the bottom edge. It also lists those that end inside the margin (64 px by default in a tall frame, 72 px in a wide one).
 - It lists fonts too: a family that visible text asks for first but that has no `@font-face`, and any font file that failed to load. Both render in a fallback face.
 - It exits 1 when it finds something.
 - It skips SVG, so UI you draw in SVG is not checked: look at those frames yourself. `npx hyperframes check` also reports text and panels that leave the canvas.
@@ -91,8 +106,7 @@ This section is a sketch: the build does not do it for you.
    `t` is in song seconds. `look` is an index into the `looks` array of `looks.json` (0 is the original). `x` and `y` are the click point as fractions of the frame, one pair per frame.
 2. Pick the switches:
    - Start after the intro (about 8 s in). Reason: the opening establishes the film's own look.
-   - Return to the original look before the end card, the closing title and credits after the last line. Reason: the credits must read in the look they were designed in.
-   - At most one switch per 1.5 s, always on a downbeat. Reason: faster switches read as flicker, and a switch off the beat looks like a glitch.
+   - Space them and return to the original look before the credits as [code-film.md](code-film.md), section 5 says.
    - Cycle the looks in the page's order. Reason: the cut then previews what a tap on the page does.
 3. Pick each click point where the frame is calmest, near the middle and away from lyrics and faces. From a first render, take grey frames around the switch. For each candidate point, sum the absolute differences between neighbouring pixels in a box around it. Lower is calmer. Reason: a click on a face or a lyric hides the thing the viewer is reading.
 4. Derive everything from the time. One tween on the root timeline calls `render(T)` on every seek, and `render` works out the look, the ripple and the pointer from `T` alone:
@@ -148,29 +162,12 @@ Render the picture in chunks cut at scene boundaries, join them, and lay the who
 
 Every ffmpeg command that writes a file has `-y`. Reason: without it, a re-run in a non-interactive shell prints "Not overwriting" and exits 0, so the old file silently stays.
 
-Check both: `ffprobe -v error -show_entries format=duration -of csv=p=0 renders/wide.mp4` matches the song length within a frame. Then watch both films through once with sound.
-
-## 7. Encode the copies
-
-```sh
-# A high-quality master for a desktop upload, so the platform's own re-encode starts clean
-ffmpeg -v error -y -i renders/wide.mp4 -c:v libx264 -preset medium -crf 18 -maxrate 14M -bufsize 28M -pix_fmt yuv420p -profile:v high -r 30 \
-  -c:a aac -b:a 256k -ar 48000 -movflags +faststart renders/wide-master.mp4
-# A smaller copy for phones and chat apps: two-pass, about 2.7 Mbps
-ffmpeg -v error -y -i renders/vert.mp4 -c:v libx264 -preset medium -b:v 2700k -pass 1 -an -f mp4 /dev/null
-ffmpeg -v error -y -i renders/vert.mp4 -c:v libx264 -preset medium -b:v 2700k -maxrate 5M -bufsize 10M -pass 2 -pix_fmt yuv420p -r 30 \
-  -c:a aac -b:a 160k -ar 48000 -movflags +faststart renders/vert-phone.mp4
-# Web copies for the live page
-ffmpeg -v error -y -i renders/wide.mp4 -vf scale=1280:720 -c:v libx264 -crf 25 -maxrate 3M -bufsize 6M -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart renders/web-wide.mp4
-ffmpeg -v error -y -i renders/vert.mp4 -vf scale=720:1280 -c:v libx264 -crf 25 -maxrate 3M -bufsize 6M -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart renders/web-vert.mp4
-```
-
-Check each platform's current upload limits before you post.
+Check both: `ffprobe -v error -show_entries format=duration -of csv=p=0 renders/wide.mp4` matches the song length within a frame. Then watch both films through once with sound. If the picture runs past the song (an end roll), mix as [code-film.md](code-film.md), section 7 says. The copies for each platform are made in [release.md](release.md), section 3.
 
 ## Rules
 
 - Compose the vertical, never crop the horizontal. Reason: a cropped 16:9 frame loses the lyric or the face.
-- Keep UI 48 px above the bottom edge and let only art bleed. Reason: a cut-off card reads as a mistake on a phone.
+- Keep type and UI inside the margins and the platform zones, and let only art bleed. Reason: a cut-off card reads as a mistake on a phone, and the user reads type near an edge as "cropped in".
 - Check readability in every look with the same injected rule the page uses. Reason: a test that silently matches nothing passes every look.
 - Render picture only, then add the song once. Reason: audio cut at chunk boundaries clicks and drifts.
 - Derive every beat-look change from time, never from what happened before. Reason: the renderer seeks out of order.
@@ -181,4 +178,4 @@ Check each platform's current upload limits before you post.
 - [ ] `edge-check.mjs out/vert` reports 0 elements and 0 font problems, and the SVG-drawn UI looks right in the snapshots.
 - [ ] `check` passes, contrast included, in the original look and every restyle look, in both frames.
 - [ ] Both renders match the song length within a frame and play through with sound.
-- [ ] The encoded copies play on a phone.
+- [ ] Every second of the tall film passed the zone check.

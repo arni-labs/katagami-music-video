@@ -1,8 +1,8 @@
 # Timing the lyrics to the word
 
-Read this at stage 2, once `song/song.wav` and `song/lyrics.json` exist, and again after any change to the audio. Read the first section earlier if you build scenes before the song exists.
+Read this at stage 2, once `song/song.wav` and `song/lyrics.json` exist, and again after any change to the audio. Read the first section earlier if you build scenes before the song exists. Both modes use the same timing data.
 
-Output: `song/vocals.wav`, `song/timing.json`, `song/labels.txt`, `song/beats.json`. Working files go in `align/`.
+Output: `song/vocals.wav`, `song/timing.json` (lines and words, plus held words and musical switches), `song/labels.txt`, `song/beats.json`. Working files go in `align/`.
 
 ## Before the song exists: provisional timing
 
@@ -25,6 +25,8 @@ A phrase transcriber (Whisper-type speech recognition) starts a line where the p
 Forced alignment works the other way round: you give it the words, and it finds when each one is sung. It needs the isolated vocal, because drums and pads smear the word onsets. Use a transcriber only to check what was sung (a changed word shows up as a mismatch), never to time lines.
 
 ## 1. Isolate the vocal
+
+Ask for the music model's own stems first (Suno exports them). Reason: separating locally took over 40 CPU-minutes for a 5.5-minute song on four cores while renders shared the machine, and it failed on Apple's GPU backend.
 
 ```sh
 mkdir -p song align
@@ -133,8 +135,9 @@ It prints one row per line: id, start, length, mean and max loss, then any flags
   ```json
   { "v1_4": { "why": "the aligner squeezed 'Christie's' into 'canvas'", "words": { "5": [41.12, 41.48] } } }
   ```
-- Expect the aligner to land 0.05 to 0.1 s after consonant onsets. That is fine: scenes cut one frame (1/30 s) before the line.
+- Expect the aligner to land 0.05 to 0.1 s after consonant onsets. That is fine: words appear on their aligned times, and a scene cuts in before its line.
 - Listen: import `song/labels.txt` into Audacity over the vocal stem (File, Import, Labels) and scrub five line starts that follow a pause. Each label must sit on the first sung sound, never before it.
+- A transcriber is useful as a second hearing, to catch a word sung differently from the text. Run it in 20 s chunks with the language set, and flag a word only when two independent hearings both put it more than 80 ms from the alignment. Reason: one pass over the whole song invented words through raps and held notes.
 
 ## 6. Beats and downbeats
 
@@ -158,17 +161,42 @@ print(f'{len(beats)} beats at {float(np.atleast_1d(tempo)[0]):.1f} BPM, first do
 
 The downbeat phase is a guess. Check that a downbeat lands on the first word of a chorus. Songs with a short bar drift off a fixed four-beat grid, so pick the phase per section there.
 
+This script assumes one steady tempo. A generated take drifts, and its bars restart after a stop (the band drops out, then comes back on a new one). On such a song fit the grid to the drum stem's onsets and follow the drift, and restart the downbeat count where the drums come back. Reason: a single-tempo fit failed on a past take whose tempo climbed from 128 to 131 BPM, and a lone hit inside a stop moved the bar count. Follow the beats on the drum stem and smooth the result.
+
+Land hits on the beat, the eighth or a word's onset, never on quarter beats alone. Reason: shouted words are syncopated, and a hit on the quarter beat missed them.
+
 Space the moves out. A cut or a short colour flip (a filter on the whole scene for one beat) can land on any beat, at least 0.36 s apart. Reason: faster changes read as flicker. Whole look switches go on downbeats, at least 1.5 s apart. Reason: a viewer needs time to take in a look.
+
+## 7. Held words and switches
+
+Two more lists go in `song/timing.json`. Both come from listening to the take and reading the stems, and scenes and shots read them instead of hardcoded times.
+
+```json
+{ "holds": [ { "line": "b2_4", "word": 7, "w": "forever.", "t": 181.20, "end": 185.34, "note": "held over the build; the last consonant closes it" } ],
+  "switches": [ { "t": 180.86, "bar": 92, "name": "the band comes back" } ] }
+```
+
+- **Holds.** A word the singer holds for seconds. Measure its true end on the vocal stem (where the voice falls under the noise) and record it here; keep the line's own `end` as it is, because the next scene's cut is laid out from it. On a past take the line ended the word 3.6 s before the voice did. The word stays on screen until that end ([SKILL.md](../SKILL.md), rule 4; what the picture does meanwhile is in [code-film.md](code-film.md), section 4).
+- **Switches.** Named musical events: the band drops out, the drums come back, the full chorus lands. Find them from the stems' level per beat. Tie look changes and big moves to them by name. Reason: a new take moves every event, and a schedule tied to names re-times itself.
+
+## 8. An edited take
+
+A music model's edit of a few lines (Suno's replace-section, for example) re-renders the whole performance, not just the lines. On two past takes the waveform was new everywhere (sample correlation under 0.4), while the words kept their place in the bar to about 10 ms, shifted by an offset that stepped at each edit (a beat cut here, a bar added there) and drifted as the take ran about 0.5% faster. Arrangement details changed too: a band-out that now stays out, a fill one beat shorter. The lyrics tag embedded in the file was a jumbled edit history. So:
+
+1. Slide the old and new mixes' onset envelopes against each other in 6 s windows. That gives the offset map and shows where the take is still the old performance. Comparing samples finds nothing.
+2. Carry every hand-checked word time, beat, downbeat and switch through the map.
+3. Align afresh only the lines that changed, and compare a fresh alignment with the carried times as a check (most words within 0.05 s).
+4. Check every switch against the stems' level per beat, and listen to every line next to an edit point.
+
+Reason: carrying keeps the times that were checked by ear, and only the changed lines need checking again.
 
 ## Rules
 
-- Align against the vocal stem, not the mix. Reason: drums and pads smear the onsets.
-- Never trust a transcriber's line starts after a pause. Reason: it starts the line where the previous word ended.
-- Never hardcode a lyric time in a scene; read it from the timing data. Reason: a re-record or re-align then needs only a rebuild.
-- Never show a word before it is sung. The cut to a new scene may come one frame before the line, no more. Reason: a caption that leads the voice reads as out of sync, even by 0.2 s.
+- Rules 1 to 4 in [SKILL.md](../SKILL.md) apply here: the vocal stem, no transcriber timing, everything from this data, no word before it is sung.
+- A cut to a new scene comes before its line, but no word shows before it is sung. Reason: a caption that leads the voice reads as out of sync, even by 0.2 s.
 - Make each line readable within about 0.4 s of its start. Reason: most lines last two to three seconds.
 - Give every ffmpeg command that writes a file `-y`. Reason: without it, a re-run in a non-interactive shell prints "Not overwriting" and exits 0, so the old file silently stays.
-- Re-run the whole timing step after any change to the audio. Reason: timing belongs to one exact take.
+- After a new take, run the whole timing step again. After an edit of the same take, carry the checked times (section 8). Reason: timing belongs to one exact performance, and an edit keeps most of it.
 
 ## Done when
 
@@ -177,4 +205,5 @@ Space the moves out. A cut or a short colour flip (a filter on the whole scene f
 - [ ] Every line in `song/timing.json` has `t`, `end` and `words`. No line overlaps the next.
 - [ ] Every flagged line is reviewed, and each fix has a reason in `song/timing-fixes.json`.
 - [ ] Five line starts after pauses, checked by ear, sit on the voice and not before it.
-- [ ] `song/beats.json` has beats and downbeats, and a chorus starts on a downbeat.
+- [ ] `song/beats.json` has beats and downbeats, and a chorus starts on a downbeat, before and after every stop.
+- [ ] Every held word has its measured end in `holds`, and the musical events are in `switches`.
